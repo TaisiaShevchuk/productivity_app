@@ -1,4 +1,5 @@
 # productivity_app
+<<<<<<< HEAD
 
 A new Flutter project.
 
@@ -15,3 +16,6 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+Cross-platform mobile application developed in Flutter using the Dart programming language.
+>>>>>>> 08c65d7e8f13eecc1a61b6c6e76774c4f709e5f2
