@@ -19,37 +19,30 @@ class AppNavigationRail extends StatelessWidget {
     return NavigationRail(
       backgroundColor: Colors.white.withValues(alpha: 0.05),
       selectedIndex: selectedIndex,
-      onDestinationSelected: onSelect,
-      labelType: NavigationRailLabelType.none,
+      onDestinationSelected: (index) {
+        // Если выбрана статистика — открываем экран
+        if (index == 5) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => StatisticsScreen(habits: habits),
+            ),
+          );
+          return;
+        }
 
-      // 🔥 СТАТИСТИКА СВЕРХУ
-      leading: Column(
-        children: [
-          const SizedBox(height: 12),
-          IconButton(
-            icon: const Icon(Icons.bar_chart),
-            tooltip: "Statistics",
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => StatisticsScreen(habits: habits),
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 12),
-        ],
-      ),
+        onSelect(index);
+      },
+      labelType: NavigationRailLabelType.none,
 
       destinations: const [
         NavigationRailDestination(
-          icon: Icon(Icons.note_alt),
-          label: Text('Notes'),
+          icon: Icon(Icons.calendar_month),
+          label: Text('Calendar'),
         ),
         NavigationRailDestination(
           icon: Icon(Icons.task_alt),
-          label: Text('Task'),
+          label: Text('Tasks for Today'),
         ),
         NavigationRailDestination(
           icon: Icon(Icons.repeat),
@@ -60,8 +53,12 @@ class AppNavigationRail extends StatelessWidget {
           label: Text('Goals'),
         ),
         NavigationRailDestination(
-          icon: Icon(Icons.calendar_month),
-          label: Text('Calendar'),
+          icon: Icon(Icons.note_alt),
+          label: Text('Notes'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.bar_chart),
+          label: Text('Stats'),
         ),
         NavigationRailDestination(
           icon: Icon(Icons.settings),

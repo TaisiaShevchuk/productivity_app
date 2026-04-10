@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../utils/locale_service.dart';
+import '../../app/app.dart'; // важно! MyApp теперь в app.dart
 
 class SettingsPopup extends StatelessWidget {
   const SettingsPopup({super.key});
@@ -10,13 +12,11 @@ class SettingsPopup extends StatelessWidget {
 
     return Stack(
       children: [
-        // Dim background
         GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Container(color: Colors.black.withOpacity(0.3)),
         ),
 
-        // Settings window (aligned with NavigationRail)
         Positioned(
           left: 120,
           top: 120,
@@ -43,10 +43,79 @@ class SettingsPopup extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
 
-                  _settingsItem(context, "Language", textColor, () {}),
-                  _settingsItem(context, "Theme", textColor, () {}),
+                  // LANGUAGE
+                  _settingsItem(context, "Language", textColor, () {
+                    showDialog(
+                      context: context,
+                      builder: (_) {
+                        return AlertDialog(
+                          title: const Text("Choose language"),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ListTile(
+                                title: const Text("English"),
+                                onTap: () {
+                                  LocaleService.saveLocale("en");
+                                  MyApp.setLocale(context, const Locale("en"));
+                                  Navigator.pop(context);
+                                },
+                              ),
+                              ListTile(
+                                title: const Text("Русский"),
+                                onTap: () {
+                                  LocaleService.saveLocale("ru");
+                                  MyApp.setLocale(context, const Locale("ru"));
+                                  Navigator.pop(context);
+                                },
+                              ),
+                              ListTile(
+                                title: const Text("Suomi"),
+                                onTap: () {
+                                  LocaleService.saveLocale("fi");
+                                  MyApp.setLocale(context, const Locale("fi"));
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  }),
 
-                  // SUPPORT — with popup dialog
+                  // THEME SWITCHER
+                  _settingsItem(context, "Theme", textColor, () {
+                    showDialog(
+                      context: context,
+                      builder: (_) {
+                        return AlertDialog(
+                          title: const Text("Choose theme"),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ListTile(
+                                title: const Text("Dark"),
+                                onTap: () {
+                                  MyApp.setTheme(context, true);
+                                  Navigator.pop(context);
+                                },
+                              ),
+                              ListTile(
+                                title: const Text("Light"),
+                                onTap: () {
+                                  MyApp.setTheme(context, false);
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  }),
+
+                  // SUPPORT
                   _settingsItem(context, "Support", textColor, () {
                     showDialog(
                       context: context,

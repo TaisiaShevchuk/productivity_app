@@ -1,0 +1,50 @@
+{
+  "@@locale": "fi",
+
+  "appTitle": "Tuottavuussovellus",
+
+  "calendar": "Kalenteri",
+  "tasks": "Tehtävät",
+  "habits": "Tavat",
+  "goals": "Tavoitteet",
+  "notes": "Muistiinpanot",
+  "stats": "Tilastot",
+  "settings": "Asetukset",
+  "trash": "Roskakori",
+
+  "add": "Lisää",
+  "edit": "Muokkaa",
+  "delete": "Poista",
+  "confirm": "Vahvista",
+  "cancel": "Peruuta",
+  "close": "Sulje",
+
+  "noNotes": "Ei muistiinpanoja",
+  "noTasks": "Ei tehtäviä",
+  "noHabits": "Ei tapoja",
+  "noGoals": "Ei tavoitteita",
+  "noTrash": "Roskakori on tyhjä",
+
+  "support": "Tuki",
+  "supportMessage": "Jos sinulla on kysymyksiä tai ongelmia, ota yhteyttä:",
+
+  "language": "Kieli",
+  "chooseLanguage": "Valitse kieli",
+
+  "deleteConfirmation": "Haluatko varmasti poistaa tämän kohteen?",
+  "restore": "Palauta",
+  "permanentlyDelete": "Poista pysyvästi",
+
+  "taskCompleted": "Tehtävä valmis",
+  "taskNotCompleted": "Tehtävä ei valmis",
+
+  "habitStreak": "Putki",
+  "goalProgress": "Edistyminen",
+
+  "calendarToday": "Tänään",
+  "calendarSelectedDate": "Valittu päivä",
+
+  "settingsTheme": "Teema",
+  "settingsSupport": "Tuki",
+  "settingsAbout": "Tietoa sovelluksesta"
+}

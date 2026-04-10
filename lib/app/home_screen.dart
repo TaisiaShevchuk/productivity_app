@@ -13,6 +13,7 @@ import '../features/notes/ui/note_editor_screen.dart';
 import '../features/tasks/data/tasks_repository.dart';
 import '../features/tasks/models/task.dart';
 import '../features/tasks/ui/add_task_screen.dart';
+import '../features/tasks/ui/edit_task_screen.dart';
 
 // HABITS
 import '../features/habits/models/habit.dart';
@@ -21,11 +22,11 @@ import '../features/habits/ui/habits_screen.dart';
 // GOALS
 import '../features/goals/ui/goals_screen.dart';
 
-//CALENDAR
+// CALENDAR
 import '../features/calendar/ui/calendar_screen.dart';
 
 // SETTINGS
-import '../features/settings/ui/settings_popup.dart';
+import '../core/widgets/settings_popup.dart';
 
 // TRASH
 import '../features/trash/ui/trash_screen.dart';
@@ -46,11 +47,12 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Habit> habits = [];
 
   final List<String> titles = [
-    "Notes",
+    "Calendar",
     "Task",
     "Habits",
     "Goals",
-    "Calendar",
+    "Notes",
+    "Stats",
     "Settings",
     "Trash",
   ];
@@ -86,6 +88,52 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // ⭐ FAB логика
+  Widget? _buildFAB() {
+    // Calendar, Habits, Goals, Settings, Trash → FAB не нужен
+    if (selectedIndex == 0 ||
+        selectedIndex == 2 ||
+        selectedIndex == 3 ||
+        selectedIndex == 6 ||
+        selectedIndex == 7) {
+      return null;
+    }
+
+    // NOTES
+    if (selectedIndex == 4) {
+      return FloatingActionButton(
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const NoteEditorScreen(),
+            ),
+          );
+          _loadNotes();
+        },
+        child: const Icon(Icons.add),
+      );
+    }
+
+    // TASKS
+    if (selectedIndex == 1) {
+      return FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const AddTaskScreen(),
+            ),
+          );
+          if (result == true) _loadTasks();
+        },
+        child: const Icon(Icons.add),
+      );
+    }
+
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
@@ -105,6 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: Row(
         children: [
+          // ⭐ NavigationRail
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             margin: EdgeInsets.only(
@@ -126,26 +175,33 @@ class _HomeScreenState extends State<HomeScreen> {
               child: AppNavigationRail(
                 selectedIndex: selectedIndex,
                 onSelect: (index) {
-                  if (index == 5) {
+                  if (index == 6) {
                     _showSettingsPopup();
-                    return;
+                  } else {
+                    setState(() => selectedIndex = index);
                   }
-                  setState(() => selectedIndex = index);
                 },
                 habits: habits,
               ),
             ),
           ),
 
+          //Основной контент
           Expanded(
             child: Scaffold(
               backgroundColor: Colors.transparent,
+              extendBody: true,
+              extendBodyBehindAppBar: false,
+
               appBar: AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
                 title: Text(
                   titles[selectedIndex],
                   style: tt.titleLarge,
                 ),
               ),
+
               body: _buildBody(),
               floatingActionButton: _buildFAB(),
             ),
@@ -156,12 +212,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBody() {
-    if (selectedIndex == 0) return _buildNotesScreen();
+    if (selectedIndex == 0) return const CalendarScreen();
     if (selectedIndex == 1) return _buildTaskList();
     if (selectedIndex == 2) return const HabitsScreen();
     if (selectedIndex == 3) return const GoalsScreen();
-    if (selectedIndex == 4) return const CalendarScreen();
-    if (selectedIndex == 6) return const TrashScreen();
+    if (selectedIndex == 4) return _buildNotesScreen();
+    if (selectedIndex == 7) return const TrashScreen();
 
     return Center(
       child: Text(
@@ -169,29 +225,6 @@ class _HomeScreenState extends State<HomeScreen> {
         style: Theme.of(context).textTheme.titleLarge,
       ),
     );
-  }
-
-  Widget? _buildFAB() {
-    if (selectedIndex == 0 || selectedIndex == 1) {
-      return FloatingActionButton(
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => selectedIndex == 0
-                  ? const NoteEditorScreen()
-                  : const AddTaskScreen(),
-            ),
-          );
-
-          if (result == true) {
-            selectedIndex == 0 ? _loadNotes() : _loadTasks();
-          }
-        },
-        child: const Icon(Icons.add),
-      );
-    }
-    return null;
   }
 
   Widget _buildNotesScreen() {
@@ -249,7 +282,6 @@ class _HomeScreenState extends State<HomeScreen> {
               size: 28,
             ),
           ),
-
           title: Text(
             task.title,
             style: tt.bodyLarge!.copyWith(
@@ -260,21 +292,37 @@ class _HomeScreenState extends State<HomeScreen> {
                   : tt.bodyLarge!.color,
             ),
           ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit, color: Colors.white70),
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EditTaskScreen(task: task),
+                    ),
+                  );
+                  if (result == true) _loadTasks();
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.delete, color: cs.secondary),
+                onPressed: () async {
+                  final confirm = await showConfirmDelete(context);
+                  if (!confirm) return;
 
-          trailing: IconButton(
-            icon: Icon(Icons.delete, color: cs.secondary),
-            onPressed: () async {
-              final confirm = await showConfirmDelete(context);
-              if (!confirm) return;
+                  await DatabaseHelper.instance.deleteItem(
+                    "task",
+                    task.id!,
+                    task.toMap(),
+                  );
 
-              await DatabaseHelper.instance.deleteItem(
-                "task",
-                task.id!,
-                task.toMap(),
-              );
-
-              _loadTasks();
-            },
+                  _loadTasks();
+                },
+              ),
+            ],
           ),
         );
       },

@@ -22,7 +22,4 @@ class NotesRepository {
       whereArgs: [note.id],
     );
   }
-
-/// ❗ Удаление заметок теперь централизовано в DatabaseHelper.deleteItem()
-/// Поэтому deleteNoteToTrash здесь больше НЕ нужно.
 }

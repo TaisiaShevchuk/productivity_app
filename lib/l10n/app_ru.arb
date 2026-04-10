@@ -1,0 +1,50 @@
+{
+  "@@locale": "ru",
+
+  "appTitle": "Приложение продуктивности",
+
+  "calendar": "Календарь",
+  "tasks": "Задачи",
+  "habits": "Привычки",
+  "goals": "Цели",
+  "notes": "Заметки",
+  "stats": "Статистика",
+  "settings": "Настройки",
+  "trash": "Корзина",
+
+  "add": "Добавить",
+  "edit": "Редактировать",
+  "delete": "Удалить",
+  "confirm": "Подтвердить",
+  "cancel": "Отмена",
+  "close": "Закрыть",
+
+  "noNotes": "Пока нет заметок",
+  "noTasks": "Пока нет задач",
+  "noHabits": "Пока нет привычек",
+  "noGoals": "Пока нет целей",
+  "noTrash": "Корзина пуста",
+
+  "support": "Поддержка",
+  "supportMessage": "Если у вас возникли вопросы или проблемы, напишите нам:",
+
+  "language": "Язык",
+  "chooseLanguage": "Выберите язык",
+
+  "deleteConfirmation": "Вы уверены, что хотите удалить этот элемент?",
+  "restore": "Восстановить",
+  "permanentlyDelete": "Удалить навсегда",
+
+  "taskCompleted": "Задача выполнена",
+  "taskNotCompleted": "Задача не выполнена",
+
+  "habitStreak": "Серия",
+  "goalProgress": "Прогресс",
+
+  "calendarToday": "Сегодня",
+  "calendarSelectedDate": "Выбранная дата",
+
+  "settingsTheme": "Тема",
+  "settingsSupport": "Поддержка",
+  "settingsAbout": "О приложении"
+}
