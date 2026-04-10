@@ -12,7 +12,7 @@ class TrashScreen extends StatefulWidget {
 
 class _TrashScreenState extends State<TrashScreen> {
   List<Map<String, dynamic>> items = [];
-  String filter = "all"; // all, note, task, goal, habit
+  String filter = "all";
   bool sortDescending = true;
 
   @override
@@ -24,7 +24,7 @@ class _TrashScreenState extends State<TrashScreen> {
   Future<void> _loadTrash() async {
     final data = await DatabaseHelper.instance.getTrash();
 
-    // сортировка по дате удаления
+    //sort by deletion date
     data.sort((a, b) {
       final da = a['deleted_at'];
       final db = b['deleted_at'];
@@ -86,7 +86,7 @@ class _TrashScreenState extends State<TrashScreen> {
 
       body: Column(
         children: [
-          // ---------- ФИЛЬТРЫ ----------
+          // ---------- FILTERS ----------
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             child: Row(
@@ -102,7 +102,7 @@ class _TrashScreenState extends State<TrashScreen> {
           ),
 
 
-          // ---------- СПИСОК ----------
+          // ---------- LIST ----------
           Expanded(
             child: filtered.isEmpty
                 ? Center(child: Text("No items", style: tt.bodyLarge))
@@ -224,7 +224,7 @@ class _TrashScreenState extends State<TrashScreen> {
     );
   }
 
-  // ---------- ФИЛЬТРЫ ----------
+  // ---------- FILTERS ----------
   Widget _buildFilterChip(String value, String label) {
     final selected = filter == value;
 

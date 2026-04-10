@@ -24,10 +24,10 @@ class HabitCard extends StatelessWidget {
 
     const labels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
-    // Сегодняшний день (0 = Пн, 6 = Вс)
+    //TODAY
     final todayIndex = (DateTime.now().weekday - 1) % 7;
 
-    // Статистика выполнения
+    //Execution statistics
     final completed = days.where((d) => d == 1).length;
     final percent = completed / 7;
 
@@ -46,7 +46,6 @@ class HabitCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
 
-          // Верхняя строка: название + кнопки
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -72,7 +71,6 @@ class HabitCard extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          // Статистика выполнения
           Text(
             "Progress: $completed / 7",
             style: tt.bodySmall!.copyWith(color: Colors.white70),
@@ -90,7 +88,7 @@ class HabitCard extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Дни недели
+          //Days of the week
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: List.generate(7, (i) {

@@ -10,6 +10,6 @@ class ThemeService {
 
   static Future<bool> loadTheme() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(key) ?? true; // по умолчанию dark
+    return prefs.getBool(key) ?? true;
   }
 }

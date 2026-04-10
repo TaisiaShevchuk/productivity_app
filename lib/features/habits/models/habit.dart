@@ -1,7 +1,7 @@
 class Habit {
   final int? id;
   final String title;
-  List<int> days; // 7 значений: 0 или 1
+  List<int> days;
   int lastReset;
 
   Habit({
@@ -15,7 +15,7 @@ class Habit {
     return {
       'id': id,
       'title': title,
-      'days': days.join(','), // "0,1,0,0,1,0,0"
+      'days': days.join(','),
       'lastReset': lastReset,
     };
   }

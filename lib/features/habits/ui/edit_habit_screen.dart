@@ -24,9 +24,6 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
     final newTitle = controller.text.trim();
     if (newTitle.isEmpty) return;
 
-    // 👉 Если хочешь протестировать сброс — раскомментируй:
-    //widget.habit.lastReset = 0;
-
     final updated = Habit(
       id: widget.habit.id,
       title: newTitle,

@@ -6,8 +6,8 @@ import '../../trash/ui/confirm_delete.dart';
 
 class GoalCard extends StatelessWidget {
   final Goal goal;
-  final VoidCallback onTap;     // открыть редактирование
-  final VoidCallback onDelete;  // обновить список после удаления
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
 
   const GoalCard({
     super.key,
@@ -40,7 +40,7 @@ class GoalCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // --- ПРОГРЕСС ---
+          //PROGRESS
           ProgressCircle(
             progress: goal.progress,
             size: 52,
@@ -48,7 +48,7 @@ class GoalCard extends StatelessWidget {
 
           const SizedBox(width: 16),
 
-          // --- ТЕКСТ ---
+          //TEXT
           Expanded(
             child: InkWell(
               borderRadius: BorderRadius.circular(14),
@@ -76,7 +76,7 @@ class GoalCard extends StatelessWidget {
             ),
           ),
 
-          // --- КНОПКИ ДЕЙСТВИЙ ---
+          //ACTION BUTTONS
           Row(
             children: [
               IconButton(
@@ -96,7 +96,7 @@ class GoalCard extends StatelessWidget {
                     goal.toMap(),
                   );
 
-                  onDelete(); // обновляем список
+                  onDelete();
                 },
               ),
             ],

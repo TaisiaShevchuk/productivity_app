@@ -5,7 +5,6 @@ import 'app/app.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Загружаем сохранённый язык
   final locale = await LocaleService.loadLocale();
 
   runApp(MyApp(startLocale: locale));

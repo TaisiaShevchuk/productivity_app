@@ -19,10 +19,7 @@ class DatabaseHelper {
     return _database!;
   }
 
-  // ============================================================
-  // INIT
-  // ============================================================
-
+  //INIT
   Future<Database> _initDB(String fileName) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, fileName);
@@ -35,10 +32,7 @@ class DatabaseHelper {
     );
   }
 
-  // ============================================================
-  // CREATE TABLES
-  // ============================================================
-
+  //CREATE TABLES
   Future _createDB(Database db, int version) async {
     await db.execute('''
       CREATE TABLE notes (
@@ -88,35 +82,25 @@ class DatabaseHelper {
     ''');
   }
 
-  // ============================================================
-  // MIGRATIONS
-  // ============================================================
-
+  //MIGRATIONS
   Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
-    // Твоя старая миграция была неправильной — удаляем её.
-    // Сейчас структура таблицы корректная, миграции не нужны.
+
   }
 
-  // ============================================================
-  // UNIVERSAL DELETE
-  // ============================================================
-
+  //UNIVERSAL DELETE
   Future<void> deleteItem(String type, int id, Map<String, dynamic> data) async {
     final db = await database;
 
     await db.transaction((txn) async {
-      // Удаляем id, чтобы избежать конфликтов при восстановлении
       final cleanData = Map<String, dynamic>.from(data);
       cleanData.remove('id');
 
-      // Сохраняем в корзину
       await txn.insert('trash', {
         'type': type,
         'data': jsonEncode(cleanData),
         'deleted_at': DateTime.now().millisecondsSinceEpoch,
       });
 
-      // Удаляем из соответствующей таблицы
       switch (type) {
         case "note":
           await txn.delete('notes', where: 'id = ?', whereArgs: [id]);
@@ -134,11 +118,7 @@ class DatabaseHelper {
     });
   }
 
-
-  // ============================================================
-  // TRASH
-  // ============================================================
-
+  //TRASH
   Future<List<Map<String, dynamic>>> getTrash() async {
     final db = await database;
     return await db.query('trash', orderBy: 'deleted_at DESC');
@@ -158,7 +138,6 @@ class DatabaseHelper {
     final type = item['type'];
     final data = jsonDecode(item['data']);
 
-    // id удалён заранее — SQLite создаст новый
     switch (type) {
       case "note":
         await insertNote(Note.fromMap(data));
@@ -180,10 +159,7 @@ class DatabaseHelper {
     await deleteFromTrash(item['id']);
   }
 
-  // ============================================================
-  // NOTES
-  // ============================================================
-
+  //NOTES
   Future<int> insertNote(Note note) async {
     final db = await database;
     return await db.insert('notes', note.toMap());
@@ -205,10 +181,7 @@ class DatabaseHelper {
     );
   }
 
-  // ============================================================
-  // TASKS
-  // ============================================================
-
+  //TASKS
   Future<int> insertTask(Task task) async {
     final db = await database;
     return await db.insert('tasks', task.toMap());
@@ -230,10 +203,7 @@ class DatabaseHelper {
     );
   }
 
-  // ============================================================
-  // HABITS
-  // ============================================================
-
+  //HABITS
   Future<int> insertHabit(Habit habit) async {
     final db = await database;
     return await db.insert('habits', habit.toMap());
@@ -245,7 +215,7 @@ class DatabaseHelper {
 
     final habits = result.map((e) => Habit.fromMap(e)).toList();
 
-    // Автоматический недельный сброс
+    //Automatic weekly reset
     final now = DateTime.now();
     final mondayResetTime = DateTime(
       now.year,
@@ -277,10 +247,7 @@ class DatabaseHelper {
     );
   }
 
-  // ============================================================
-  // GOALS
-  // ============================================================
-
+  //GOALS
   Future<int> insertGoal(Goal goal) async {
     final db = await database;
     return await db.insert('goals', goal.toMap());
@@ -292,7 +259,7 @@ class DatabaseHelper {
 
     final goals = result.map((e) => Goal.fromMap(e)).toList();
 
-    // Автоматический пересчёт прогресса
+    //Automatic progress recalculation
     for (final g in goals) {
       final newProgress = g.calculateProgress();
 

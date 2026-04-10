@@ -23,7 +23,4 @@ class TasksRepository {
       whereArgs: [id],
     );
   }
-
-/// ❗ Удаление задач теперь централизовано в DatabaseHelper.deleteItem()
-/// Поэтому deleteTask здесь больше НЕ нужно.
 }

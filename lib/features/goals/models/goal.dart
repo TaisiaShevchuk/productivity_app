@@ -3,20 +3,10 @@ import 'dart:convert';
 class Goal {
   final int? id;
   final String title;
-
-  // старое поле — оставляем для совместимости
   final bool isDone;
-
-  // прогресс выполнения (0–100)
   final int progress;
-
-  // дата создания (timestamp)
   final int createdAt;
-
-  // дедлайн (timestamp, может быть null)
   final int? deadline;
-
-  // список подзадач
   final List<Subtask> subtasks;
 
   Goal({
@@ -29,7 +19,6 @@ class Goal {
     required this.subtasks,
   });
 
-  /// Удобный метод пересчёта прогресса
   int calculateProgress() {
     if (subtasks.isEmpty) return 0;
     final done = subtasks.where((s) => s.isDone).length;
@@ -54,7 +43,6 @@ class Goal {
       title: map['title'],
       isDone: map['isDone'] == 1,
 
-      // если старые записи в базе — progress может отсутствовать
       progress: map['progress'] ?? 0,
 
       createdAt: map['createdAt'] ??

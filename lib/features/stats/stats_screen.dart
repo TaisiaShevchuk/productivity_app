@@ -91,12 +91,13 @@ class StatisticsScreen extends StatelessWidget {
 
             const SizedBox(height: 32),
 
-            // ---------- FUTURE MODULES ----------
+            // ---------- TASKS ----------
             Text("Tasks", style: tt.headlineSmall),
             const SizedBox(height: 8),
             Text("Task statistics will appear here later.", style: tt.bodySmall),
             const SizedBox(height: 32),
 
+            // ---------- GOALS ----------
             Text("Goals", style: tt.headlineSmall),
             const SizedBox(height: 8),
             Text("Goal statistics will appear here later.", style: tt.bodySmall),

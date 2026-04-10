@@ -89,7 +89,7 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // --- TITLE ---
+          //TITLE
           TextField(
             controller: titleController,
             decoration: const InputDecoration(
@@ -100,7 +100,7 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
 
           const SizedBox(height: 20),
 
-          // --- PROGRESS ---
+          //PROGRESS
           Center(
             child: ProgressCircle(
               progress: progress,
@@ -110,7 +110,7 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
 
           const SizedBox(height: 20),
 
-          // --- DEADLINE ---
+          //DEADLINE
           Row(
             children: [
               Expanded(
@@ -135,7 +135,7 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
 
           const SizedBox(height: 20),
 
-          // --- ADD SUBTASK ---
+          //ADD SUBTASK
           Row(
             children: [
               Expanded(
@@ -157,7 +157,7 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
 
           const SizedBox(height: 20),
 
-          // --- SUBTASK LIST ---
+          //SUBTASK LIST
           ...subtasks.asMap().entries.map((entry) {
             final index = entry.key;
             final sub = entry.value;

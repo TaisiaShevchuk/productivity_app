@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ProgressCircle extends StatelessWidget {
-  final int progress; // 0–100
+  final int progress;
   final double size;
 
   const ProgressCircle({
@@ -20,7 +20,7 @@ class ProgressCircle extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // --- ФОНОВЫЙ КРУГ ---
+          //BACKGROUND CIRCLE
           SizedBox(
             width: size,
             height: size,
@@ -33,7 +33,7 @@ class ProgressCircle extends StatelessWidget {
             ),
           ),
 
-          // --- АКТИВНЫЙ ПРОГРЕСС ---
+          //ACTIVE PROGRESS
           SizedBox(
             width: size,
             height: size,
@@ -56,7 +56,7 @@ class ProgressCircle extends StatelessWidget {
             ),
           ),
 
-          // --- ИКОНКА В ЦЕНТРЕ ---
+          //ICON IN THE CENTER
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
             child: isDone

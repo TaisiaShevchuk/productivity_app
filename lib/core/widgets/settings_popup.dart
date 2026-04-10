@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/locale_service.dart';
-import '../../app/app.dart'; // важно! MyApp теперь в app.dart
+import '../../app/app.dart';
 
 class SettingsPopup extends StatelessWidget {
   const SettingsPopup({super.key});

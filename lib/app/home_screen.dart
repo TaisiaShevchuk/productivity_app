@@ -88,9 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ⭐ FAB логика
   Widget? _buildFAB() {
-    // Calendar, Habits, Goals, Settings, Trash → FAB не нужен
     if (selectedIndex == 0 ||
         selectedIndex == 2 ||
         selectedIndex == 3 ||
@@ -99,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return null;
     }
 
-    // NOTES
+    //NOTES
     if (selectedIndex == 4) {
       return FloatingActionButton(
         onPressed: () async {
@@ -115,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    // TASKS
+    //TASKS
     if (selectedIndex == 1) {
       return FloatingActionButton(
         onPressed: () async {
@@ -153,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: Row(
         children: [
-          // ⭐ NavigationRail
+          //NavigationRail
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             margin: EdgeInsets.only(
@@ -186,7 +184,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          //Основной контент
           Expanded(
             child: Scaffold(
               backgroundColor: Colors.transparent,
@@ -318,7 +315,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     task.id!,
                     task.toMap(),
                   );
-
                   _loadTasks();
                 },
               ),

@@ -20,7 +20,7 @@ class AppNavigationRail extends StatelessWidget {
       backgroundColor: Colors.white.withValues(alpha: 0.05),
       selectedIndex: selectedIndex,
       onDestinationSelected: (index) {
-        // Если выбрана статистика — открываем экран
+
         if (index == 5) {
           Navigator.push(
             context,
