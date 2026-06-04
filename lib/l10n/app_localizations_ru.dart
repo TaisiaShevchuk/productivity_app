@@ -481,4 +481,49 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get removeNoteLink => 'Убрать связь';
+
+  @override
+  String get notifications => 'Уведомления';
+
+  @override
+  String get dailyReminder => 'Ежедневное напоминание';
+
+  @override
+  String get dailyReminderDescription => 'Напоминать каждый день заглянуть в приложение';
+
+  @override
+  String get reminderTime => 'Время напоминания';
+
+  @override
+  String get deadlineNotifications => 'Уведомления о дедлайнах';
+
+  @override
+  String get deadlineNotificationsDescription => 'Напоминать перед дедлайнами задач и целей';
+
+  @override
+  String get reminderCount => 'Количество напоминаний';
+
+  @override
+  String get addReminder => 'Добавить напоминание';
+
+  @override
+  String get reminderBeforeDeadline => 'Напоминание до дедлайна';
+
+  @override
+  String get firstReminderHours => 'Первое напоминание до дедлайна';
+
+  @override
+  String get secondReminderHours => 'Второе напоминание до дедлайна';
+
+  @override
+  String get hours => 'часов';
+
+  @override
+  String get openLinkedTask => 'Открыть связанную задачу';
+
+  @override
+  String get openLinkedGoal => 'Открыть связанную цель';
+
+  @override
+  String get openLinkedHabit => 'Открыть связанную привычку';
 }

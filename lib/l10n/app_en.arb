@@ -179,5 +179,20 @@
   "createLinkedNote": "Create note",
   "createAndLink": "Create and link",
   "openNote": "Open note",
-  "removeNoteLink": "Remove note link"
+  "removeNoteLink": "Remove note link",
+  "notifications": "Notifications",
+  "dailyReminder": "Daily app reminder",
+  "dailyReminderDescription": "Remind me to review the app every day",
+  "reminderTime": "Reminder time",
+  "deadlineNotifications": "Deadline notifications",
+  "deadlineNotificationsDescription": "Notify me before task and goal deadlines",
+  "reminderCount": "Number of deadline reminders",
+  "addReminder": "Add reminder",
+  "reminderBeforeDeadline": "Reminder before deadline",
+  "firstReminderHours": "First reminder before deadline",
+  "secondReminderHours": "Second reminder before deadline",
+  "hours": "hours",
+  "openLinkedTask": "Open linked task",
+  "openLinkedGoal": "Open linked goal",
+  "openLinkedHabit": "Open linked habit"
 }

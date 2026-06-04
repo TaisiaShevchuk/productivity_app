@@ -3,6 +3,7 @@ import '../utils/locale_service.dart';
 import '../../app/app.dart';
 import '../theme/theme_service.dart';
 import '../theme/app_theme.dart';
+import '../notifications/notification_settings_screen.dart';
 import '../../l10n/app_localizations.dart';
 
 class SettingsPopup extends StatelessWidget {
@@ -129,6 +130,16 @@ class SettingsPopup extends StatelessWidget {
                           ),
                         );
                       },
+                    );
+                  }),
+
+                  _settingsItem(context, l10n.notifications, textColor, () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const NotificationSettingsScreen(),
+                      ),
                     );
                   }),
 

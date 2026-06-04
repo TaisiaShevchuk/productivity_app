@@ -179,5 +179,20 @@
   "createLinkedNote": "Luo muistiinpano",
   "createAndLink": "Luo ja linkitä",
   "openNote": "Avaa muistiinpano",
-  "removeNoteLink": "Poista linkitys"
+  "removeNoteLink": "Poista linkitys",
+  "notifications": "Ilmoitukset",
+  "dailyReminder": "Päivittäinen muistutus",
+  "dailyReminderDescription": "Muistuta tarkistamaan sovellus joka päivä",
+  "reminderTime": "Muistutusaika",
+  "deadlineNotifications": "Määräaikailmoitukset",
+  "deadlineNotificationsDescription": "Ilmoita ennen tehtävien ja tavoitteiden määräaikaa",
+  "reminderCount": "Muistutusten määrä",
+  "addReminder": "Lisää muistutus",
+  "reminderBeforeDeadline": "Muistutus ennen määräaikaa",
+  "firstReminderHours": "Ensimmäinen muistutus ennen määräaikaa",
+  "secondReminderHours": "Toinen muistutus ennen määräaikaa",
+  "hours": "tuntia",
+  "openLinkedTask": "Avaa linkitetty tehtävä",
+  "openLinkedGoal": "Avaa linkitetty tavoite",
+  "openLinkedHabit": "Avaa linkitetty tapa"
 }

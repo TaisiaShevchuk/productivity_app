@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../app/app_navigation_rail.dart';
 import '../data/database_helper.dart';
 import '../l10n/app_localizations.dart';
@@ -58,7 +57,6 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Note> notes = [];
   List<Habit> habits = [];
 
-
   @override
   void initState() {
     super.initState();
@@ -83,11 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _refreshHomeData() async {
-    await Future.wait([
-      _loadTasks(),
-      _loadNotes(),
-      _loadHabits(),
-    ]);
+    await Future.wait([_loadTasks(), _loadNotes(), _loadHabits()]);
   }
 
   void _showSettingsPopup() {
@@ -115,9 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () async {
           await Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => const NoteEditorScreen(),
-            ),
+            MaterialPageRoute(builder: (_) => const NoteEditorScreen()),
           );
           _loadNotes();
         },
@@ -131,9 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () async {
           final result = await Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => const AddTaskScreen(),
-            ),
+            MaterialPageRoute(builder: (_) => const AddTaskScreen()),
           );
           if (result == true) _loadTasks();
         },
@@ -201,10 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
               appBar: AppBar(
                 backgroundColor: Colors.transparent,
                 elevation: 0,
-                title: Text(
-                  titles[selectedIndex],
-                  style: tt.titleLarge,
-                ),
+                title: Text(titles[selectedIndex], style: tt.titleLarge),
               ),
 
               body: _buildBody(),
@@ -255,26 +242,31 @@ class _HomeScreenState extends State<HomeScreen> {
     final tt = Theme.of(context).textTheme;
 
     return notes.isEmpty
-        ? Center(child: Text(AppLocalizations.of(context)!.noNotes, style: tt.bodyLarge))
+        ? Center(
+            child: Text(
+              AppLocalizations.of(context)!.noNotes,
+              style: tt.bodyLarge,
+            ),
+          )
         : ListView.builder(
-      itemCount: notes.length,
-      itemBuilder: (context, index) {
-        final note = notes[index];
+            itemCount: notes.length,
+            itemBuilder: (context, index) {
+              final note = notes[index];
 
-        return NoteCard(
-          title: note.title,
-          onTap: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => NoteEditorScreen(note: note),
-              ),
-            );
-            _loadNotes();
-          },
-        );
-      },
-    );
+              return NoteCard(
+                title: note.title,
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => NoteEditorScreen(note: note),
+                    ),
+                  );
+                  _loadNotes();
+                },
+              );
+            },
+          );
   }
 
   Widget _buildTaskList() {
@@ -285,91 +277,115 @@ class _HomeScreenState extends State<HomeScreen> {
       ..sort((a, b) => a.isDone == b.isDone ? 0 : (a.isDone ? 1 : -1));
 
     return sortedTasks.isEmpty
-        ? Center(child: Text(AppLocalizations.of(context)!.noTasks, style: tt.bodyLarge))
-        : ListView.builder(
-      itemCount: sortedTasks.length,
-      itemBuilder: (context, index) {
-        final task = sortedTasks[index];
-
-        return ListTile(
-          leading: GestureDetector(
-            onTap: () async {
-              await TasksRepository()
-                  .toggleTask(task.id!, !task.isDone);
-              _loadTasks();
-            },
-            child: Icon(
-              task.isDone
-                  ? Icons.check_circle
-                  : Icons.circle_outlined,
-              color: task.isDone ? Colors.green : cs.secondary,
-              size: 28,
+        ? Center(
+            child: Text(
+              AppLocalizations.of(context)!.noTasks,
+              style: tt.bodyLarge,
             ),
-          ),
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                task.title,
-                style: tt.bodyLarge!.copyWith(
-                  decoration:
-                      task.isDone ? TextDecoration.lineThrough : null,
-                  color: task.isDone
-                      ? Colors.white.withOpacity(0.5)
-                      : tt.bodyLarge!.color,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (task.deadline != null)
-                Text(
-                  '${AppLocalizations.of(context)!.deadline}: '
-                  '${_formatDate(task.deadline!)}',
-                  style: tt.bodySmall!.copyWith(color: Colors.white70),
-                ),
-            ],
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              LinkedNoteIconButton(noteId: task.noteId),
-              IconButton(
-                icon: const Icon(Icons.edit, color: Colors.white70),
-                onPressed: () async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => EditTaskScreen(task: task),
-                    ),
-                  );
-                  if (result == true) _loadTasks();
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.delete, color: cs.secondary),
-                onPressed: () async {
-                  final confirm = await showConfirmDelete(context);
-                  if (!confirm) return;
+          )
+        : ListView.builder(
+            itemCount: sortedTasks.length,
+            itemBuilder: (context, index) {
+              final task = sortedTasks[index];
 
-                  await DatabaseHelper.instance.deleteItem(
-                    "task",
-                    task.id!,
-                    task.toMap(),
-                  );
-                  _loadTasks();
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
+              return ListTile(
+                leading: GestureDetector(
+                  onTap: () async {
+                    await TasksRepository().toggleTask(task.id!, !task.isDone);
+                    _loadTasks();
+                  },
+                  child: Icon(
+                    task.isDone ? Icons.check_circle : Icons.circle_outlined,
+                    color: task.isDone ? Colors.green : cs.secondary,
+                    size: 28,
+                  ),
+                ),
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      task.title,
+                      style: tt.bodyLarge!.copyWith(
+                        decoration: task.isDone
+                            ? TextDecoration.lineThrough
+                            : null,
+                        color: task.isDone
+                            ? Colors.white.withOpacity(0.5)
+                            : tt.bodyLarge!.color,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (task.deadline != null)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _formatTaskDeadlineDate(task.deadline!),
+                            maxLines: 1,
+                            softWrap: false,
+                            style: tt.bodySmall!.copyWith(
+                              color: Colors.white70,
+                            ),
+                          ),
+                          Text(
+                            _formatTaskDeadlineTime(task.deadline!),
+                            maxLines: 1,
+                            softWrap: false,
+                            style: tt.bodySmall!.copyWith(
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    LinkedNoteIconButton(noteId: task.noteId),
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.white70),
+                      onPressed: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => EditTaskScreen(task: task),
+                          ),
+                        );
+                        if (result == true) _loadTasks();
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete, color: cs.secondary),
+                      onPressed: () async {
+                        final confirm = await showConfirmDelete(context);
+                        if (!confirm) return;
+
+                        await DatabaseHelper.instance.deleteItem(
+                          "task",
+                          task.id!,
+                          task.toMap(),
+                        );
+                        _loadTasks();
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
   }
 
-  String _formatDate(int timestamp) {
+  String _formatTaskDeadlineDate(int timestamp) {
     final d = DateTime.fromMillisecondsSinceEpoch(timestamp);
-    return '${d.day.toString().padLeft(2, '0')}'
-        '.${d.month.toString().padLeft(2, '0')}'
-        '.${d.year}';
+    return '${d.day.toString().padLeft(2, '0')}.'
+        '${d.month.toString().padLeft(2, '0')}';
+  }
+
+  String _formatTaskDeadlineTime(int timestamp) {
+    final d = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    return '${d.hour.toString().padLeft(2, '0')}:'
+        '${d.minute.toString().padLeft(2, '0')}';
   }
 }

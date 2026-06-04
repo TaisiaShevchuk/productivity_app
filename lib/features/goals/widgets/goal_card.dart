@@ -38,16 +38,13 @@ class GoalCard extends StatelessWidget {
             color: Colors.black.withOpacity(0.05),
             blurRadius: 6,
             offset: const Offset(0, 3),
-          )
+          ),
         ],
       ),
       child: Row(
         children: [
           //PROGRESS
-          ProgressCircle(
-            progress: goal.progress,
-            size: 52,
-          ),
+          ProgressCircle(progress: goal.progress, size: 52),
 
           const SizedBox(width: 16),
 
@@ -64,9 +61,22 @@ class GoalCard extends StatelessWidget {
                   const SizedBox(height: 4),
 
                   if (goal.deadline != null)
-                    Text(
-                      "${l10n.deadline}: ${_formatDate(goal.deadline!)}",
-                      style: tt.bodySmall,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _formatDeadlineDate(goal.deadline!),
+                          maxLines: 1,
+                          softWrap: false,
+                          style: tt.bodySmall,
+                        ),
+                        Text(
+                          _formatDeadlineTime(goal.deadline!),
+                          maxLines: 1,
+                          softWrap: false,
+                          style: tt.bodySmall,
+                        ),
+                      ],
                     ),
 
                   if (totalCount > 0)
@@ -110,10 +120,15 @@ class GoalCard extends StatelessWidget {
     );
   }
 
-  String _formatDate(int timestamp) {
+  String _formatDeadlineDate(int timestamp) {
     final d = DateTime.fromMillisecondsSinceEpoch(timestamp);
     return "${d.day.toString().padLeft(2, '0')}"
-        ".${d.month.toString().padLeft(2, '0')}"
-        ".${d.year}";
+        ".${d.month.toString().padLeft(2, '0')}";
+  }
+
+  String _formatDeadlineTime(int timestamp) {
+    final d = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    return "${d.hour.toString().padLeft(2, '0')}:"
+        "${d.minute.toString().padLeft(2, '0')}";
   }
 }

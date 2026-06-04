@@ -19,17 +19,31 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   Future<void> _pickDeadline() async {
     final now = DateTime.now();
-    final picked = await showDatePicker(
+    final current = _deadline != null
+        ? DateTime.fromMillisecondsSinceEpoch(_deadline!)
+        : now.add(const Duration(hours: 1));
+    final pickedDate = await showDatePicker(
       context: context,
-      initialDate: _deadline != null
-          ? DateTime.fromMillisecondsSinceEpoch(_deadline!)
-          : now,
+      initialDate: current,
       firstDate: now.subtract(const Duration(days: 365)),
       lastDate: now.add(const Duration(days: 365 * 5)),
     );
 
-    if (picked == null) return;
-    setState(() => _deadline = picked.millisecondsSinceEpoch);
+    if (pickedDate == null || !mounted) return;
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(current),
+    );
+    if (pickedTime == null) return;
+
+    final deadline = DateTime(
+      pickedDate.year,
+      pickedDate.month,
+      pickedDate.day,
+      pickedTime.hour,
+      pickedTime.minute,
+    );
+    setState(() => _deadline = deadline.millisecondsSinceEpoch);
   }
 
   @override
@@ -124,6 +138,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     final d = DateTime.fromMillisecondsSinceEpoch(timestamp);
     return '${d.day.toString().padLeft(2, '0')}'
         '.${d.month.toString().padLeft(2, '0')}'
-        '.${d.year}';
+        '.${d.year} '
+        '${d.hour.toString().padLeft(2, '0')}:'
+        '${d.minute.toString().padLeft(2, '0')}';
   }
 }

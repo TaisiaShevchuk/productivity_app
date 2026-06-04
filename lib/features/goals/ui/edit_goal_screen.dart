@@ -43,19 +43,31 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
 
   Future<void> _pickDeadline() async {
     final now = DateTime.now();
-    final picked = await showDatePicker(
+    final current = deadline != null
+        ? DateTime.fromMillisecondsSinceEpoch(deadline!)
+        : now.add(const Duration(hours: 1));
+    final pickedDate = await showDatePicker(
       context: context,
-      initialDate: deadline != null
-          ? DateTime.fromMillisecondsSinceEpoch(deadline!)
-          : now,
+      initialDate: current,
       firstDate: now.subtract(const Duration(days: 365)),
       lastDate: now.add(const Duration(days: 365 * 5)),
     );
 
-    if (!mounted) return;
-    if (picked != null) {
-      setState(() => deadline = picked.millisecondsSinceEpoch);
-    }
+    if (pickedDate == null || !mounted) return;
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(current),
+    );
+    if (pickedTime == null) return;
+
+    final value = DateTime(
+      pickedDate.year,
+      pickedDate.month,
+      pickedDate.day,
+      pickedTime.hour,
+      pickedTime.minute,
+    );
+    setState(() => deadline = value.millisecondsSinceEpoch);
   }
 
   void _addSubtask() {
@@ -274,6 +286,8 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
     final d = DateTime.fromMillisecondsSinceEpoch(timestamp);
     return "${d.day.toString().padLeft(2, '0')}"
         ".${d.month.toString().padLeft(2, '0')}"
-        ".${d.year}";
+        ".${d.year} "
+        "${d.hour.toString().padLeft(2, '0')}:"
+        "${d.minute.toString().padLeft(2, '0')}";
   }
 }

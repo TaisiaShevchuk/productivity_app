@@ -481,4 +481,49 @@ class AppLocalizationsFi extends AppLocalizations {
 
   @override
   String get removeNoteLink => 'Poista linkitys';
+
+  @override
+  String get notifications => 'Ilmoitukset';
+
+  @override
+  String get dailyReminder => 'Päivittäinen muistutus';
+
+  @override
+  String get dailyReminderDescription => 'Muistuta tarkistamaan sovellus joka päivä';
+
+  @override
+  String get reminderTime => 'Muistutusaika';
+
+  @override
+  String get deadlineNotifications => 'Määräaikailmoitukset';
+
+  @override
+  String get deadlineNotificationsDescription => 'Ilmoita ennen tehtävien ja tavoitteiden määräaikaa';
+
+  @override
+  String get reminderCount => 'Muistutusten määrä';
+
+  @override
+  String get addReminder => 'Lisää muistutus';
+
+  @override
+  String get reminderBeforeDeadline => 'Muistutus ennen määräaikaa';
+
+  @override
+  String get firstReminderHours => 'Ensimmäinen muistutus ennen määräaikaa';
+
+  @override
+  String get secondReminderHours => 'Toinen muistutus ennen määräaikaa';
+
+  @override
+  String get hours => 'tuntia';
+
+  @override
+  String get openLinkedTask => 'Avaa linkitetty tehtävä';
+
+  @override
+  String get openLinkedGoal => 'Avaa linkitetty tavoite';
+
+  @override
+  String get openLinkedHabit => 'Avaa linkitetty tapa';
 }

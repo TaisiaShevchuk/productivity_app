@@ -6,6 +6,7 @@ import '../features/notes/models/note.dart';
 import '../features/tasks/models/task.dart';
 import '../features/habits/models/habit.dart';
 import '../features/goals/models/goal.dart';
+import '../core/notifications/notification_service.dart';
 
 class DatabaseHelper {
   DatabaseHelper._privateConstructor();
@@ -132,6 +133,24 @@ class DatabaseHelper {
 
       switch (type) {
         case "note":
+          await txn.update(
+            'tasks',
+            {'noteId': null},
+            where: 'noteId = ?',
+            whereArgs: [id],
+          );
+          await txn.update(
+            'goals',
+            {'noteId': null},
+            where: 'noteId = ?',
+            whereArgs: [id],
+          );
+          await txn.update(
+            'habits',
+            {'noteId': null},
+            where: 'noteId = ?',
+            whereArgs: [id],
+          );
           await txn.delete('notes', where: 'id = ?', whereArgs: [id]);
           break;
         case "task":
@@ -145,6 +164,9 @@ class DatabaseHelper {
           break;
       }
     });
+
+    if (type == 'task') await NotificationService.instance.cancelTask(id);
+    if (type == 'goal') await NotificationService.instance.cancelGoal(id);
   }
 
   //TRASH
@@ -224,7 +246,17 @@ class DatabaseHelper {
   //TASKS
   Future<int> insertTask(Task task) async {
     final db = await database;
-    return await db.insert('tasks', task.toMap());
+    final id = await db.insert('tasks', task.toMap());
+    await NotificationService.instance.scheduleTask(
+      Task(
+        id: id,
+        title: task.title,
+        isDone: task.isDone,
+        deadline: task.deadline,
+        noteId: task.noteId,
+      ),
+    );
+    return id;
   }
 
   Future<List<Task>> getTasks() async {
@@ -235,12 +267,14 @@ class DatabaseHelper {
 
   Future<int> updateTask(Task task) async {
     final db = await database;
-    return await db.update(
+    final result = await db.update(
       'tasks',
       task.toMap(),
       where: 'id = ?',
       whereArgs: [task.id],
     );
+    await NotificationService.instance.scheduleTask(task);
+    return result;
   }
 
   //HABITS
@@ -290,7 +324,20 @@ class DatabaseHelper {
   //GOALS
   Future<int> insertGoal(Goal goal) async {
     final db = await database;
-    return await db.insert('goals', goal.toMap());
+    final id = await db.insert('goals', goal.toMap());
+    await NotificationService.instance.scheduleGoal(
+      Goal(
+        id: id,
+        title: goal.title,
+        isDone: goal.isDone,
+        progress: goal.progress,
+        createdAt: goal.createdAt,
+        deadline: goal.deadline,
+        noteId: goal.noteId,
+        subtasks: goal.subtasks,
+      ),
+    );
+    return id;
   }
 
   Future<List<Goal>> getGoals() async {
@@ -324,11 +371,13 @@ class DatabaseHelper {
 
   Future<int> updateGoal(Goal goal) async {
     final db = await database;
-    return await db.update(
+    final result = await db.update(
       'goals',
       goal.toMap(),
       where: 'id = ?',
       whereArgs: [goal.id],
     );
+    await NotificationService.instance.scheduleGoal(goal);
+    return result;
   }
 }

@@ -1032,6 +1032,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove note link'**
   String get removeNoteLink;
+
+  /// No description provided for @notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifications;
+
+  /// No description provided for @dailyReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily app reminder'**
+  String get dailyReminder;
+
+  /// No description provided for @dailyReminderDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me to review the app every day'**
+  String get dailyReminderDescription;
+
+  /// No description provided for @reminderTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder time'**
+  String get reminderTime;
+
+  /// No description provided for @deadlineNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Deadline notifications'**
+  String get deadlineNotifications;
+
+  /// No description provided for @deadlineNotificationsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify me before task and goal deadlines'**
+  String get deadlineNotificationsDescription;
+
+  /// No description provided for @reminderCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of deadline reminders'**
+  String get reminderCount;
+
+  /// No description provided for @addReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Add reminder'**
+  String get addReminder;
+
+  /// No description provided for @reminderBeforeDeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder before deadline'**
+  String get reminderBeforeDeadline;
+
+  /// No description provided for @firstReminderHours.
+  ///
+  /// In en, this message translates to:
+  /// **'First reminder before deadline'**
+  String get firstReminderHours;
+
+  /// No description provided for @secondReminderHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Second reminder before deadline'**
+  String get secondReminderHours;
+
+  /// No description provided for @hours.
+  ///
+  /// In en, this message translates to:
+  /// **'hours'**
+  String get hours;
+
+  /// No description provided for @openLinkedTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Open linked task'**
+  String get openLinkedTask;
+
+  /// No description provided for @openLinkedGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Open linked goal'**
+  String get openLinkedGoal;
+
+  /// No description provided for @openLinkedHabit.
+  ///
+  /// In en, this message translates to:
+  /// **'Open linked habit'**
+  String get openLinkedHabit;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

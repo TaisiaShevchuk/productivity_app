@@ -179,5 +179,20 @@
   "createLinkedNote": "Создать заметку",
   "createAndLink": "Создать и связать",
   "openNote": "Открыть заметку",
-  "removeNoteLink": "Убрать связь"
+  "removeNoteLink": "Убрать связь",
+  "notifications": "Уведомления",
+  "dailyReminder": "Ежедневное напоминание",
+  "dailyReminderDescription": "Напоминать каждый день заглянуть в приложение",
+  "reminderTime": "Время напоминания",
+  "deadlineNotifications": "Уведомления о дедлайнах",
+  "deadlineNotificationsDescription": "Напоминать перед дедлайнами задач и целей",
+  "reminderCount": "Количество напоминаний",
+  "addReminder": "Добавить напоминание",
+  "reminderBeforeDeadline": "Напоминание до дедлайна",
+  "firstReminderHours": "Первое напоминание до дедлайна",
+  "secondReminderHours": "Второе напоминание до дедлайна",
+  "hours": "часов",
+  "openLinkedTask": "Открыть связанную задачу",
+  "openLinkedGoal": "Открыть связанную цель",
+  "openLinkedHabit": "Открыть связанную привычку"
 }

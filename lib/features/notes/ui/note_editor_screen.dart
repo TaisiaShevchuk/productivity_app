@@ -6,6 +6,7 @@ import '../../../data/database_helper.dart';
 import '../../trash/ui/confirm_delete.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/note_linked_entities.dart';
 
 class NoteEditorScreen extends StatefulWidget {
   final Note? note;
@@ -70,6 +71,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       currentNote = notes.first;
 
       isNew = false;
+      if (mounted) setState(() {});
     } else {
       final updated = Note(
         id: currentNote!.id,
@@ -133,6 +135,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
+              if (currentNote?.id != null)
+                NoteLinkedEntities(noteId: currentNote!.id!),
               TextField(
                 controller: titleController,
                 style: tt.titleLarge,

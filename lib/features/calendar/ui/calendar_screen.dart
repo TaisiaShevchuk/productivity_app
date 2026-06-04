@@ -155,7 +155,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       _PopupSectionTitle(l10n.goals),
                       ...todayGoals.map((goal) {
                         return _PopupItem(
-                          title: goal.title,
+                          title: '${_formatTime(goal.deadline!)} ${goal.title}',
                           color: Colors.orangeAccent,
                           onTap: () {
                             Navigator.pop(context);
@@ -174,7 +174,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       _PopupSectionTitle(l10n.tasks),
                       ...todayTasks.map((task) {
                         return _PopupItem(
-                          title: task.title,
+                          title: '${_formatTime(task.deadline!)} ${task.title}',
                           color: Colors.lightBlueAccent,
                           onTap: () {
                             Navigator.pop(context);
@@ -202,6 +202,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
         ],
       ),
     );
+  }
+
+  String _formatTime(int timestamp) {
+    final d = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    return '${d.hour.toString().padLeft(2, '0')}:'
+        '${d.minute.toString().padLeft(2, '0')}';
   }
 
   Widget _buildCalendarGrid({

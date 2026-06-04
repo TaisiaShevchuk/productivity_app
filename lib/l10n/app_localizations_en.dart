@@ -481,4 +481,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get removeNoteLink => 'Remove note link';
+
+  @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get dailyReminder => 'Daily app reminder';
+
+  @override
+  String get dailyReminderDescription => 'Remind me to review the app every day';
+
+  @override
+  String get reminderTime => 'Reminder time';
+
+  @override
+  String get deadlineNotifications => 'Deadline notifications';
+
+  @override
+  String get deadlineNotificationsDescription => 'Notify me before task and goal deadlines';
+
+  @override
+  String get reminderCount => 'Number of deadline reminders';
+
+  @override
+  String get addReminder => 'Add reminder';
+
+  @override
+  String get reminderBeforeDeadline => 'Reminder before deadline';
+
+  @override
+  String get firstReminderHours => 'First reminder before deadline';
+
+  @override
+  String get secondReminderHours => 'Second reminder before deadline';
+
+  @override
+  String get hours => 'hours';
+
+  @override
+  String get openLinkedTask => 'Open linked task';
+
+  @override
+  String get openLinkedGoal => 'Open linked goal';
+
+  @override
+  String get openLinkedHabit => 'Open linked habit';
 }
