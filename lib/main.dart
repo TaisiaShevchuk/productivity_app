@@ -8,8 +8,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final locale = await LocaleService.loadLocale();
-  await NotificationService.instance.initialize();
-  await NotificationCoordinator.rescheduleAll();
+  try {
+    await NotificationService.instance.initialize();
+    await NotificationCoordinator.rescheduleAll();
+  } catch (error) {
+    debugPrint('Notification initialization failed: $error');
+  }
 
   runApp(MyApp(startLocale: locale));
 }

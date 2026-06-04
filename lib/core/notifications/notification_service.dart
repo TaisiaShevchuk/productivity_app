@@ -24,8 +24,22 @@ class NotificationService {
     if (kIsWeb) return;
 
     tz_data.initializeTimeZones();
+
     final timezone = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(timezone.identifier));
+    final safeTimezone = switch (timezone.identifier) {
+      'Europe/Kiev' => 'Europe/Kyiv',
+      final identifier => identifier,
+    };
+
+    try {
+      tz.setLocalLocation(
+        safeTimezone == 'UTC' || safeTimezone == 'GMT'
+            ? tz.UTC
+            : tz.getLocation(safeTimezone),
+      );
+    } catch (_) {
+      tz.setLocalLocation(tz.UTC);
+    }
 
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
