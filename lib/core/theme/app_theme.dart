@@ -1,6 +1,29 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
+  static bool isMonochrome(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return scheme.surface == Colors.black && scheme.primary == Colors.white;
+  }
+
+  static BoxDecoration pageDecoration(BuildContext context) {
+    if (isMonochrome(context)) {
+      return const BoxDecoration(color: Colors.black);
+    }
+
+    return const BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFF2E385A),
+          Color(0xFF6C5E82),
+          Color(0xFFA091A7),
+        ],
+      ),
+    );
+  }
+
   // DARK THEME
   static final ThemeData dark = ThemeData(
     useMaterial3: true,
@@ -61,5 +84,34 @@ class AppTheme {
       color: Color(0xFF6C5E82),
       size: 24,
     ),
+  );
+
+  static final ThemeData monochrome = ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    colorScheme: const ColorScheme.dark(
+      primary: Colors.white,
+      onPrimary: Colors.black,
+      secondary: Colors.white70,
+      onSecondary: Colors.black,
+      surface: Colors.black,
+      onSurface: Colors.white,
+      error: Colors.white,
+      onError: Colors.black,
+    ),
+    scaffoldBackgroundColor: Colors.black,
+    cardColor: const Color(0xFF141414),
+    textTheme: const TextTheme(
+      bodyLarge: TextStyle(color: Colors.white),
+      bodyMedium: TextStyle(color: Colors.white),
+      bodySmall: TextStyle(color: Colors.white70),
+      titleMedium: TextStyle(color: Colors.white),
+      titleLarge: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+        fontSize: 22,
+      ),
+    ),
+    iconTheme: const IconThemeData(color: Colors.white, size: 24),
   );
 }

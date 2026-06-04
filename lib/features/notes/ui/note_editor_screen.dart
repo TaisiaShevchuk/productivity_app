@@ -4,6 +4,8 @@ import '../models/note.dart';
 import '../data/notes_repository.dart';
 import '../../../data/database_helper.dart';
 import '../../trash/ui/confirm_delete.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../core/theme/app_theme.dart';
 
 class NoteEditorScreen extends StatefulWidget {
   final Note? note;
@@ -106,24 +108,15 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF2E385A),
-            Color(0xFF6C5E82),
-            Color(0xFFA091A7),
-          ],
-        ),
-      ),
+      decoration: AppTheme.pageDecoration(context),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
-          title: Text(isNew ? "New Note" : "Edit Note", style: tt.titleLarge),
+          title: Text(isNew ? l10n.newNote : l10n.editNote, style: tt.titleLarge),
           actions: [
             if (!isNew)
               IconButton(
@@ -143,8 +136,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               TextField(
                 controller: titleController,
                 style: tt.titleLarge,
-                decoration: const InputDecoration(
-                  hintText: "Title",
+                decoration: InputDecoration(
+                  hintText: l10n.title,
                   border: InputBorder.none,
                 ),
               ),
@@ -155,8 +148,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                   maxLines: null,
                   keyboardType: TextInputType.multiline,
                   style: tt.bodyLarge,
-                  decoration: const InputDecoration(
-                    hintText: "Write your note...",
+                  decoration: InputDecoration(
+                    hintText: l10n.writeNote,
                     border: InputBorder.none,
                   ),
                 ),

@@ -26,7 +26,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 7,
+      version: 9,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -47,7 +47,9 @@ class DatabaseHelper {
       CREATE TABLE tasks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
-        isDone INTEGER NOT NULL
+        isDone INTEGER NOT NULL,
+        deadline INTEGER,
+        noteId INTEGER
       )
     ''');
 
@@ -56,7 +58,8 @@ class DatabaseHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
         days TEXT NOT NULL,
-        lastReset INTEGER NOT NULL
+        lastReset INTEGER NOT NULL,
+        noteId INTEGER
       )
     ''');
 
@@ -68,6 +71,7 @@ class DatabaseHelper {
         progress INTEGER NOT NULL,
         createdAt INTEGER NOT NULL,
         deadline INTEGER,
+        noteId INTEGER,
         subtasks TEXT NOT NULL
       )
     ''');
@@ -84,7 +88,32 @@ class DatabaseHelper {
 
   //MIGRATIONS
   Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 8) {
+      final columns = await db.rawQuery('PRAGMA table_info(tasks)');
+      final hasDeadline = columns.any((column) => column['name'] == 'deadline');
 
+      if (!hasDeadline) {
+        await db.execute('ALTER TABLE tasks ADD COLUMN deadline INTEGER');
+      }
+    }
+
+    if (oldVersion < 9) {
+      await _addColumnIfMissing(db, 'tasks', 'noteId', 'INTEGER');
+      await _addColumnIfMissing(db, 'habits', 'noteId', 'INTEGER');
+      await _addColumnIfMissing(db, 'goals', 'noteId', 'INTEGER');
+    }
+  }
+
+  Future<void> _addColumnIfMissing(
+    Database db,
+    String table,
+    String column,
+    String type,
+  ) async {
+    final columns = await db.rawQuery('PRAGMA table_info($table)');
+    if (!columns.any((item) => item['name'] == column)) {
+      await db.execute('ALTER TABLE $table ADD COLUMN $column $type');
+    }
   }
 
   //UNIVERSAL DELETE
@@ -169,6 +198,17 @@ class DatabaseHelper {
     final db = await database;
     final result = await db.query('notes', orderBy: 'createdAt DESC');
     return result.map((e) => Note.fromMap(e)).toList();
+  }
+
+  Future<Note?> getNote(int id) async {
+    final db = await database;
+    final result = await db.query(
+      'notes',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    return result.isEmpty ? null : Note.fromMap(result.first);
   }
 
   Future<int> updateNote(Note note) async {
@@ -271,6 +311,7 @@ class DatabaseHelper {
           progress: newProgress,
           createdAt: g.createdAt,
           deadline: g.deadline,
+          noteId: g.noteId,
           subtasks: g.subtasks,
         );
 

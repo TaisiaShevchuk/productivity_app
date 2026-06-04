@@ -3,6 +3,8 @@ import '../../../data/database_helper.dart';
 import '../widgets/progress_circle.dart';
 import '../models/goal.dart';
 import '../../trash/ui/confirm_delete.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../core/widgets/linked_note_field.dart';
 
 class GoalCard extends StatelessWidget {
   final Goal goal;
@@ -19,6 +21,7 @@ class GoalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
     final iconColor = Theme.of(context).colorScheme.onSurface.withOpacity(0.6);
 
     final doneCount = goal.subtasks.where((s) => s.isDone).length;
@@ -62,13 +65,13 @@ class GoalCard extends StatelessWidget {
 
                   if (goal.deadline != null)
                     Text(
-                      "Deadline: ${_formatDate(goal.deadline!)}",
+                      "${l10n.deadline}: ${_formatDate(goal.deadline!)}",
                       style: tt.bodySmall,
                     ),
 
                   if (totalCount > 0)
                     Text(
-                      "$doneCount of $totalCount",
+                      "$doneCount ${l10n.outOf} $totalCount",
                       style: tt.bodySmall,
                     ),
                 ],
@@ -79,10 +82,11 @@ class GoalCard extends StatelessWidget {
           //ACTION BUTTONS
           Row(
             children: [
+              LinkedNoteIconButton(noteId: goal.noteId),
               IconButton(
                 icon: Icon(Icons.edit, color: iconColor),
                 onPressed: onTap,
-                tooltip: "Edit",
+                tooltip: l10n.edit,
               ),
               IconButton(
                 icon: Icon(Icons.delete, color: iconColor),

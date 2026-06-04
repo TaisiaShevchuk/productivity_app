@@ -7,6 +7,7 @@ class Goal {
   final int progress;
   final int createdAt;
   final int? deadline;
+  final int? noteId;
   final List<Subtask> subtasks;
 
   Goal({
@@ -16,6 +17,7 @@ class Goal {
     required this.progress,
     required this.createdAt,
     this.deadline,
+    this.noteId,
     required this.subtasks,
   });
 
@@ -33,6 +35,7 @@ class Goal {
       'progress': progress,
       'createdAt': createdAt,
       'deadline': deadline,
+      'noteId': noteId,
       'subtasks': jsonEncode(subtasks.map((e) => e.toMap()).toList()),
     };
   }
@@ -49,6 +52,7 @@ class Goal {
           DateTime.now().millisecondsSinceEpoch,
 
       deadline: map['deadline'],
+      noteId: map['noteId'] as int?,
 
       subtasks: map['subtasks'] != null
           ? (jsonDecode(map['subtasks']) as List)

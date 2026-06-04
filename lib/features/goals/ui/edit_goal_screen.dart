@@ -3,6 +3,8 @@ import '../../../data/database_helper.dart';
 import '../models/goal.dart';
 import '../widgets/progress_circle.dart';
 import '../../trash/ui/confirm_delete.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../core/widgets/linked_note_field.dart';
 
 
 class EditGoalScreen extends StatefulWidget {
@@ -20,6 +22,7 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
 
   late List<Subtask> subtasks;
   int? deadline;
+  int? noteId;
 
   @override
   void initState() {
@@ -29,6 +32,7 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
 
     subtasks = List.from(widget.goal.subtasks);
     deadline = widget.goal.deadline;
+    noteId = widget.goal.noteId;
   }
 
   int get progress {
@@ -75,6 +79,7 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
       progress: progress,
       createdAt: widget.goal.createdAt,
       deadline: deadline,
+      noteId: noteId,
       subtasks: subtasks,
     );
 
@@ -86,12 +91,13 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
     final iconColor = Theme.of(context).colorScheme.onSurface.withOpacity(0.6);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        title: const Text("Edit Goal"),
+        title: Text(l10n.editGoal),
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
@@ -105,9 +111,9 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
           //TITLE
           TextField(
             controller: titleController,
-            decoration: const InputDecoration(
-              labelText: "Goal title",
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n.goalTitle,
+              border: const OutlineInputBorder(),
             ),
           ),
 
@@ -129,8 +135,8 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
               Expanded(
                 child: Text(
                   deadline == null
-                      ? "No deadline selected"
-                      : "Deadline: ${_formatDate(deadline!)}",
+                      ? l10n.noDeadlineSelected
+                      : "${l10n.deadline}: ${_formatDate(deadline!)}",
                   style: tt.bodyLarge,
                 ),
               ),
@@ -148,22 +154,29 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
 
           const SizedBox(height: 20),
 
+          LinkedNoteField(
+            noteId: noteId,
+            onChanged: (value) => setState(() => noteId = value),
+          ),
+
+          const SizedBox(height: 20),
+
           //ADD SUBTASK
           Row(
             children: [
               Expanded(
                 child: TextField(
                   controller: subtaskController,
-                  decoration: const InputDecoration(
-                    labelText: "New subtask",
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.newSubtask,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
               ),
               const SizedBox(width: 10),
               ElevatedButton(
                 onPressed: _addSubtask,
-                child: const Text("Add"),
+                child: Text(l10n.add),
               ),
             ],
           ),
@@ -203,23 +216,23 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
                         final newTitle = await showDialog<String>(
                           context: context,
                           builder: (_) => AlertDialog(
-                            title: const Text("Edit subtask"),
+                            title: Text(l10n.editSubtask),
                             content: TextField(
                               controller: controller,
-                              decoration: const InputDecoration(
-                                hintText: "Title",
+                              decoration: InputDecoration(
+                                hintText: l10n.title,
                               ),
                             ),
                             actions: [
                               TextButton(
                                 onPressed: () =>
                                     Navigator.pop(context, null),
-                                child: const Text("Cancel"),
+                                child: Text(l10n.cancel),
                               ),
                               TextButton(
                                 onPressed: () => Navigator.pop(
                                     context, controller.text.trim()),
-                                child: const Text("Save"),
+                                child: Text(l10n.save),
                               ),
                             ],
                           ),

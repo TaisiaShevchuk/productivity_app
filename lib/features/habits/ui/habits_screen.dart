@@ -3,7 +3,9 @@ import '../../../data/database_helper.dart';
 import '../models/habit.dart';
 import 'widgets/habit_card.dart';
 import 'edit_habit_screen.dart';
+import 'add_habit_screen.dart';
 import '../../trash/ui/confirm_delete.dart';
+import '../../../l10n/app_localizations.dart';
 
 class HabitsScreen extends StatefulWidget {
   const HabitsScreen({super.key});
@@ -27,39 +29,12 @@ class _HabitsScreenState extends State<HabitsScreen> {
   }
 
   Future<void> _addHabit() async {
-    final controller = TextEditingController();
-
-    final title = await showDialog<String>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("New habit"),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: "Habit name"),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, controller.text),
-            child: const Text("Add"),
-          ),
-        ],
-      ),
+    final created = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => const AddHabitScreen()),
     );
 
-    if (title != null && title.trim().isNotEmpty) {
-      await DatabaseHelper.instance.insertHabit(
-        Habit(
-          title: title.trim(),
-          days: [0, 0, 0, 0, 0, 0, 0],
-          lastReset: DateTime.now().millisecondsSinceEpoch,
-        ),
-      );
-      _loadHabits();
-    }
+    if (created == true) _loadHabits();
   }
 
   Future<void> _deleteHabit(Habit habit) async {
@@ -78,6 +53,7 @@ class _HabitsScreenState extends State<HabitsScreen> {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -90,7 +66,7 @@ class _HabitsScreenState extends State<HabitsScreen> {
       body: habits.isEmpty
           ? Center(
         child: Text(
-          "No habits yet",
+          l10n.noHabits,
           style: tt.bodyLarge,
         ),
       )
@@ -110,6 +86,7 @@ class _HabitsScreenState extends State<HabitsScreen> {
               key: ValueKey(habit.id),
               title: habit.title,
               days: habit.days,
+              noteId: habit.noteId,
               onToggle: (dayIndex) async {
                 final updatedDays = [...habit.days];
                 updatedDays[dayIndex] =
@@ -121,6 +98,7 @@ class _HabitsScreenState extends State<HabitsScreen> {
                     title: habit.title,
                     days: updatedDays,
                     lastReset: habit.lastReset,
+                    noteId: habit.noteId,
                   ),
                 );
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class NoteCard extends StatelessWidget {
   final String title;
@@ -29,7 +30,7 @@ class NoteCard extends StatelessWidget {
           ),
         ),
         child: Text(
-          title.isEmpty ? "(No title)" : title,
+          title.isEmpty ? AppLocalizations.of(context)!.noTitle : title,
           style: tt.titleMedium,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import '../l10n/app_localizations.dart';
 import '../core/utils/locale_service.dart';
 import '../core/theme/app_theme.dart';
@@ -16,9 +15,9 @@ class MyApp extends StatefulWidget {
     state?.changeLocale(locale);
   }
 
-  static void setTheme(BuildContext context, bool isDark) {
+  static void setTheme(BuildContext context, AppThemeMode mode) {
     final state = context.findAncestorStateOfType<_MyAppState>();
-    state?.changeTheme(isDark);
+    state?.changeTheme(mode);
   }
 
   @override
@@ -27,7 +26,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late Locale _locale;
-  bool _isDark = true;
+  AppThemeMode _themeMode = AppThemeMode.dark;
 
   @override
   void initState() {
@@ -35,7 +34,7 @@ class _MyAppState extends State<MyApp> {
     _locale = widget.startLocale;
 
     ThemeService.loadTheme().then((value) {
-      setState(() => _isDark = value);
+      setState(() => _themeMode = value);
     });
   }
 
@@ -44,33 +43,28 @@ class _MyAppState extends State<MyApp> {
     LocaleService.saveLocale(locale.languageCode);
   }
 
-  void changeTheme(bool isDark) {
-    setState(() => _isDark = isDark);
-    ThemeService.saveTheme(isDark);
+  void changeTheme(AppThemeMode mode) {
+    setState(() => _themeMode = mode);
+    ThemeService.saveTheme(mode);
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Productivity App',
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
 
-      theme: _isDark ? AppTheme.dark : AppTheme.light,
+      theme: switch (_themeMode) {
+        AppThemeMode.dark => AppTheme.dark,
+        AppThemeMode.light => AppTheme.light,
+        AppThemeMode.monochrome => AppTheme.monochrome,
+      },
 
       locale: _locale,
 
-      supportedLocales: const [
-        Locale('en'),
-        Locale('ru'),
-        Locale('fi'),
-      ],
+      supportedLocales: AppLocalizations.supportedLocales,
 
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
 
       home: const HomeScreen(),
     );

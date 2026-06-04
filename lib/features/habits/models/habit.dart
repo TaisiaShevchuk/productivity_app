@@ -3,12 +3,14 @@ class Habit {
   final String title;
   List<int> days;
   int lastReset;
+  final int? noteId;
 
   Habit({
     this.id,
     required this.title,
     required this.days,
     required this.lastReset,
+    this.noteId,
   });
 
   Map<String, dynamic> toMap() {
@@ -17,6 +19,7 @@ class Habit {
       'title': title,
       'days': days.join(','),
       'lastReset': lastReset,
+      'noteId': noteId,
     };
   }
 
@@ -41,6 +44,7 @@ class Habit {
       title: map['title'],
       days: parsedDays,
       lastReset: map['lastReset'] ?? 0,
+      noteId: map['noteId'] as int?,
     );
   }
 }

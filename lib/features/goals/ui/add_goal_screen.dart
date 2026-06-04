@@ -3,6 +3,8 @@ import '../../../data/database_helper.dart';
 import '../models/goal.dart';
 import '../widgets/progress_circle.dart';
 import '../../trash/ui/confirm_delete.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../core/widgets/linked_note_field.dart';
 
 
 class AddGoalScreen extends StatefulWidget {
@@ -18,6 +20,7 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
 
   List<Subtask> subtasks = [];
   int? deadline;
+  int? noteId;
 
   int get progress {
     if (subtasks.isEmpty) return 0;
@@ -62,6 +65,7 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
       progress: progress,
       createdAt: now,
       deadline: deadline,
+      noteId: noteId,
       subtasks: subtasks,
     );
 
@@ -73,12 +77,13 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
     final iconColor = Theme.of(context).colorScheme.onSurface.withOpacity(0.6);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface.withOpacity(0.85),
       appBar: AppBar(
-        title: const Text("New Goal"),
+        title: Text(l10n.newGoal),
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
@@ -92,9 +97,9 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
           //TITLE
           TextField(
             controller: titleController,
-            decoration: const InputDecoration(
-              labelText: "Goal title",
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n.goalTitle,
+              border: const OutlineInputBorder(),
             ),
           ),
 
@@ -116,8 +121,8 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
               Expanded(
                 child: Text(
                   deadline == null
-                      ? "No deadline selected"
-                      : "Deadline: ${_formatDate(deadline!)}",
+                      ? l10n.noDeadlineSelected
+                      : "${l10n.deadline}: ${_formatDate(deadline!)}",
                   style: tt.bodyLarge,
                 ),
               ),
@@ -135,22 +140,29 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
 
           const SizedBox(height: 20),
 
+          LinkedNoteField(
+            noteId: noteId,
+            onChanged: (value) => setState(() => noteId = value),
+          ),
+
+          const SizedBox(height: 20),
+
           //ADD SUBTASK
           Row(
             children: [
               Expanded(
                 child: TextField(
                   controller: subtaskController,
-                  decoration: const InputDecoration(
-                    labelText: "New subtask",
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.newSubtask,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
               ),
               const SizedBox(width: 10),
               ElevatedButton(
                 onPressed: _addSubtask,
-                child: const Text("Add"),
+                child: Text(l10n.add),
               ),
             ],
           ),
@@ -190,23 +202,23 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
                         final newTitle = await showDialog<String>(
                           context: context,
                           builder: (_) => AlertDialog(
-                            title: const Text("Edit subtask"),
+                            title: Text(l10n.editSubtask),
                             content: TextField(
                               controller: controller,
-                              decoration: const InputDecoration(
-                                hintText: "Title",
+                              decoration: InputDecoration(
+                                hintText: l10n.title,
                               ),
                             ),
                             actions: [
                               TextButton(
                                 onPressed: () =>
                                     Navigator.pop(context, null),
-                                child: const Text("Cancel"),
+                                child: Text(l10n.cancel),
                               ),
                               TextButton(
                                 onPressed: () => Navigator.pop(
                                     context, controller.text.trim()),
-                                child: const Text("Save"),
+                                child: Text(l10n.save),
                               ),
                             ],
                           ),

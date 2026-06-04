@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../../data/database_helper.dart';
 import 'confirm_delete.dart';
+import '../../../l10n/app_localizations.dart';
 
 class TrashScreen extends StatefulWidget {
   const TrashScreen({super.key});
@@ -52,6 +53,7 @@ class _TrashScreenState extends State<TrashScreen> {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final filtered = filter == "all"
         ? items
@@ -92,11 +94,11 @@ class _TrashScreenState extends State<TrashScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildFilterChip("all", "All"),
-                _buildFilterChip("note", "N"),
-                _buildFilterChip("task", "T"),
-                _buildFilterChip("goal", "G"),
-                _buildFilterChip("habit", "H"),
+                _buildFilterChip("all", l10n.all),
+                _buildFilterChip("note", l10n.note.characters.first.toUpperCase()),
+                _buildFilterChip("task", l10n.task.characters.first.toUpperCase()),
+                _buildFilterChip("goal", l10n.goal.characters.first.toUpperCase()),
+                _buildFilterChip("habit", l10n.habit.characters.first.toUpperCase()),
               ],
             ),
           ),
@@ -105,7 +107,7 @@ class _TrashScreenState extends State<TrashScreen> {
           // ---------- LIST ----------
           Expanded(
             child: filtered.isEmpty
-                ? Center(child: Text("No items", style: tt.bodyLarge))
+                ? Center(child: Text(l10n.noItems, style: tt.bodyLarge))
                 : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: filtered.length,
@@ -160,14 +162,14 @@ class _TrashScreenState extends State<TrashScreen> {
                         const SizedBox(height: 8),
 
                         Text(
-                          data['title'] ?? data['content'] ?? "(no text)",
+                          data['title'] ?? data['content'] ?? l10n.noText,
                           style: tt.bodyLarge,
                         ),
 
                         const SizedBox(height: 6),
 
                         Text(
-                          "Deleted: ${deletedAt.day.toString().padLeft(2, '0')}"
+                          "${l10n.deleted}: ${deletedAt.day.toString().padLeft(2, '0')}"
                               ".${deletedAt.month.toString().padLeft(2, '0')}"
                               ".${deletedAt.year}",
                           style: tt.bodySmall!.copyWith(
@@ -189,7 +191,7 @@ class _TrashScreenState extends State<TrashScreen> {
                                   items.removeAt(index);
                                 });
                               },
-                              child: const Text("Restore"),
+                              child: Text(l10n.restore),
                             ),
                             const SizedBox(width: 12),
                             TextButton(
@@ -205,9 +207,9 @@ class _TrashScreenState extends State<TrashScreen> {
                                   items.removeAt(index);
                                 });
                               },
-                              child: const Text(
-                                "Delete forever",
-                                style: TextStyle(color: Colors.red),
+                              child: Text(
+                                l10n.deleteForever,
+                                style: const TextStyle(color: Colors.red),
                               ),
                             ),
                           ],

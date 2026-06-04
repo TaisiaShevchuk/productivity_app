@@ -5,6 +5,7 @@ import '../widgets/goal_card.dart';
 import 'add_goal_screen.dart';
 import 'edit_goal_screen.dart';
 import '../../trash/ui/confirm_delete.dart';
+import '../../../l10n/app_localizations.dart';
 
 class GoalsScreen extends StatefulWidget {
   const GoalsScreen({super.key});
@@ -41,6 +42,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -49,7 +51,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
         child: const Icon(Icons.add),
       ),
       body: goals.isEmpty
-          ? Center(child: Text("No goals yet", style: tt.bodyLarge))
+          ? Center(child: Text(l10n.noGoals, style: tt.bodyLarge))
           : ListView.builder(
         padding: const EdgeInsets.only(bottom: 80),
         itemCount: goals.length,

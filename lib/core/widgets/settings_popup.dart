@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../utils/locale_service.dart';
 import '../../app/app.dart';
+import '../theme/theme_service.dart';
+import '../theme/app_theme.dart';
+import '../../l10n/app_localizations.dart';
 
 class SettingsPopup extends StatelessWidget {
   const SettingsPopup({super.key});
@@ -9,6 +12,8 @@ class SettingsPopup extends StatelessWidget {
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
     final textColor = tt.bodyLarge!.color;
+    final l10n = AppLocalizations.of(context)!;
+    final monochrome = AppTheme.isMonochrome(context);
 
     return Stack(
       children: [
@@ -26,7 +31,9 @@ class SettingsPopup extends StatelessWidget {
               width: 240,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFF6C5E82).withOpacity(0.95),
+                color: monochrome
+                    ? Colors.black.withValues(alpha: 0.98)
+                    : const Color(0xFF6C5E82).withOpacity(0.95),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: Colors.white.withOpacity(0.4),
@@ -38,18 +45,18 @@ class SettingsPopup extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Settings",
+                    l10n.settings,
                     style: tt.titleLarge!.copyWith(color: textColor),
                   ),
                   const SizedBox(height: 20),
 
                   // LANGUAGE
-                  _settingsItem(context, "Language", textColor, () {
+                  _settingsItem(context, l10n.language, textColor, () {
                     showDialog(
                       context: context,
                       builder: (_) {
                         return AlertDialog(
-                          title: const Text("Choose language"),
+                          title: Text(l10n.chooseLanguage),
                           content: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -85,26 +92,36 @@ class SettingsPopup extends StatelessWidget {
                   }),
 
                   // THEME SWITCHER
-                  _settingsItem(context, "Theme", textColor, () {
+                  _settingsItem(context, l10n.settingsTheme, textColor, () {
                     showDialog(
                       context: context,
                       builder: (_) {
                         return AlertDialog(
-                          title: const Text("Choose theme"),
+                          title: Text(l10n.chooseTheme),
                           content: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               ListTile(
-                                title: const Text("Dark"),
+                                title: Text(l10n.darkTheme),
                                 onTap: () {
-                                  MyApp.setTheme(context, true);
+                                  MyApp.setTheme(context, AppThemeMode.dark);
                                   Navigator.pop(context);
                                 },
                               ),
                               ListTile(
-                                title: const Text("Light"),
+                                title: Text(l10n.lightTheme),
                                 onTap: () {
-                                  MyApp.setTheme(context, false);
+                                  MyApp.setTheme(context, AppThemeMode.light);
+                                  Navigator.pop(context);
+                                },
+                              ),
+                              ListTile(
+                                title: Text(l10n.monochromeTheme),
+                                onTap: () {
+                                  MyApp.setTheme(
+                                    context,
+                                    AppThemeMode.monochrome,
+                                  );
                                   Navigator.pop(context);
                                 },
                               ),
@@ -116,32 +133,31 @@ class SettingsPopup extends StatelessWidget {
                   }),
 
                   // SUPPORT
-                  _settingsItem(context, "Support", textColor, () {
+                  _settingsItem(context, l10n.settingsSupport, textColor, () {
                     showDialog(
                       context: context,
                       builder: (context) {
                         return AlertDialog(
-                          backgroundColor:
-                          const Color(0xFF6C5E82).withOpacity(0.95),
+                          backgroundColor: monochrome
+                              ? Colors.black
+                              : const Color(0xFF6C5E82).withOpacity(0.95),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          title: const Text(
-                            "Support",
-                            style: TextStyle(color: Colors.white),
+                          title: Text(
+                            l10n.support,
+                            style: const TextStyle(color: Colors.white),
                           ),
-                          content: const Text(
-                            "If you experience any issues or have questions,\n"
-                                "please contact us at:\n\n"
-                                "tiia_app_support@gmail.com",
-                            style: TextStyle(color: Colors.white70),
+                          content: Text(
+                            "${l10n.supportMessage}\n\ntiia_app_support@gmail.com",
+                            style: const TextStyle(color: Colors.white70),
                           ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context),
-                              child: const Text(
-                                "Close",
-                                style: TextStyle(color: Colors.white),
+                              child: Text(
+                                l10n.close,
+                                style: const TextStyle(color: Colors.white),
                               ),
                             ),
                           ],
@@ -150,7 +166,7 @@ class SettingsPopup extends StatelessWidget {
                     );
                   }),
 
-                  _settingsItem(context, "About app", textColor, () {}),
+                  _settingsItem(context, l10n.settingsAbout, textColor, () {}),
                 ],
               ),
             ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../features/habits/models/habit.dart';
-import '../features/stats/stats_screen.dart';
+import '../l10n/app_localizations.dart';
 
 class AppNavigationRail extends StatelessWidget {
   final int selectedIndex;
@@ -16,57 +16,54 @@ class AppNavigationRail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return NavigationRail(
       backgroundColor: Colors.white.withValues(alpha: 0.05),
       selectedIndex: selectedIndex,
-      onDestinationSelected: (index) {
-
-        if (index == 5) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => StatisticsScreen(habits: habits),
-            ),
-          );
-          return;
-        }
-
-        onSelect(index);
-      },
+      onDestinationSelected: onSelect,
       labelType: NavigationRailLabelType.none,
 
-      destinations: const [
+      destinations: [
         NavigationRailDestination(
           icon: Icon(Icons.calendar_month),
-          label: Text('Calendar'),
+          label: Text(l10n.calendar),
         ),
         NavigationRailDestination(
           icon: Icon(Icons.task_alt),
-          label: Text('Tasks for Today'),
+          label: Text(l10n.tasksForToday),
         ),
         NavigationRailDestination(
           icon: Icon(Icons.repeat),
-          label: Text('Habits'),
+          label: Text(l10n.habits),
         ),
         NavigationRailDestination(
           icon: Icon(Icons.flag),
-          label: Text('Goals'),
+          label: Text(l10n.goals),
         ),
         NavigationRailDestination(
           icon: Icon(Icons.note_alt),
-          label: Text('Notes'),
+          label: Text(l10n.notes),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.auto_awesome),
+          label: Text(l10n.scenarios),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.psychology_alt),
+          label: Text(l10n.assistant),
         ),
         NavigationRailDestination(
           icon: Icon(Icons.bar_chart),
-          label: Text('Stats'),
+          label: Text(l10n.stats),
         ),
         NavigationRailDestination(
           icon: Icon(Icons.settings),
-          label: Text('Settings'),
+          label: Text(l10n.settings),
         ),
         NavigationRailDestination(
           icon: Icon(Icons.delete_outline),
-          label: Text('Trash'),
+          label: Text(l10n.trash),
         ),
       ],
     );

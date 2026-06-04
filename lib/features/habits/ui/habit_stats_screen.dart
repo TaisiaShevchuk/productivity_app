@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import '../models/habit.dart';
 
 class HabitStatsScreen extends StatelessWidget {
@@ -21,9 +22,10 @@ class HabitStatsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Статистика привычек")),
+      appBar: AppBar(title: Text(l10n.habitStats)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: habits.map((habit) {
@@ -43,18 +45,18 @@ class HabitStatsScreen extends StatelessWidget {
               children: [
                 Text(habit.title, style: tt.titleMedium),
                 const SizedBox(height: 8),
-
-                Text("Completed: $completed of 7"),
+                Text("${l10n.completed}: $completed ${l10n.outOf} 7"),
                 const SizedBox(height: 4),
-
                 LinearProgressIndicator(
                   value: percent,
                   backgroundColor: Colors.white12,
                   color: Colors.green,
                 ),
-
                 const SizedBox(height: 12),
-                Text("Streak: $streak days 🔥", style: tt.bodyMedium),
+                Text(
+                  "${l10n.habitStreak}: $streak ${l10n.days}",
+                  style: tt.bodyMedium,
+                ),
               ],
             ),
           );

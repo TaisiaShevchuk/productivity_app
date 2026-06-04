@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../app/app_navigation_rail.dart';
 import '../data/database_helper.dart';
+import '../l10n/app_localizations.dart';
+import '../core/widgets/linked_note_field.dart';
+import '../core/theme/app_theme.dart';
 
 // NOTES
 import '../features/notes/data/notes_repository.dart';
@@ -21,6 +24,15 @@ import '../features/habits/ui/habits_screen.dart';
 
 // GOALS
 import '../features/goals/ui/goals_screen.dart';
+
+// SCENARIOS
+import '../features/scenarios/ui/scenarios_screen.dart';
+
+// ASSISTANT
+import '../features/assistant/ui/assistant_screen.dart';
+
+// STATS
+import '../features/stats/stats_screen.dart';
 
 // CALENDAR
 import '../features/calendar/ui/calendar_screen.dart';
@@ -46,16 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Note> notes = [];
   List<Habit> habits = [];
 
-  final List<String> titles = [
-    "Calendar",
-    "Task",
-    "Habits",
-    "Goals",
-    "Notes",
-    "Stats",
-    "Settings",
-    "Trash",
-  ];
 
   @override
   void initState() {
@@ -80,6 +82,14 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {});
   }
 
+  Future<void> _refreshHomeData() async {
+    await Future.wait([
+      _loadTasks(),
+      _loadNotes(),
+      _loadHabits(),
+    ]);
+  }
+
   void _showSettingsPopup() {
     showDialog(
       context: context,
@@ -93,7 +103,9 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedIndex == 2 ||
         selectedIndex == 3 ||
         selectedIndex == 6 ||
-        selectedIndex == 7) {
+        selectedIndex == 7 ||
+        selectedIndex == 8 ||
+        selectedIndex == 9) {
       return null;
     }
 
@@ -136,19 +148,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
     final topPadding = MediaQuery.of(context).padding.top;
+    final l10n = AppLocalizations.of(context)!;
+    final titles = _localizedTitles(l10n);
 
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF2E385A),
-            Color(0xFF6C5E82),
-            Color(0xFFA091A7),
-          ],
-        ),
-      ),
+      decoration: AppTheme.pageDecoration(context),
       child: Row(
         children: [
           //NavigationRail
@@ -174,9 +178,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 selectedIndex: selectedIndex,
                 onSelect: (index) {
                   if (index == 6) {
+                    setState(() => selectedIndex = index);
+                  } else if (index == 8) {
                     _showSettingsPopup();
                   } else {
                     setState(() => selectedIndex = index);
+                    if (index == 4) _loadNotes();
+                    if (index == 2) _loadHabits();
                   }
                 },
                 habits: habits,
@@ -208,13 +216,32 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  List<String> _localizedTitles(AppLocalizations l10n) => [
+    l10n.calendar,
+    l10n.task,
+    l10n.habits,
+    l10n.goals,
+    l10n.notes,
+    l10n.scenarios,
+    l10n.assistant,
+    l10n.stats,
+    l10n.settings,
+    l10n.trash,
+  ];
+
   Widget _buildBody() {
+    final titles = _localizedTitles(AppLocalizations.of(context)!);
     if (selectedIndex == 0) return const CalendarScreen();
     if (selectedIndex == 1) return _buildTaskList();
     if (selectedIndex == 2) return const HabitsScreen();
     if (selectedIndex == 3) return const GoalsScreen();
     if (selectedIndex == 4) return _buildNotesScreen();
-    if (selectedIndex == 7) return const TrashScreen();
+    if (selectedIndex == 5) {
+      return ScenariosScreen(onApplied: _refreshHomeData);
+    }
+    if (selectedIndex == 6) return const AssistantScreen();
+    if (selectedIndex == 7) return StatisticsScreen(habits: habits);
+    if (selectedIndex == 9) return const TrashScreen();
 
     return Center(
       child: Text(
@@ -228,7 +255,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final tt = Theme.of(context).textTheme;
 
     return notes.isEmpty
-        ? Center(child: Text("No notes yet", style: tt.bodyLarge))
+        ? Center(child: Text(AppLocalizations.of(context)!.noNotes, style: tt.bodyLarge))
         : ListView.builder(
       itemCount: notes.length,
       itemBuilder: (context, index) {
@@ -258,7 +285,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ..sort((a, b) => a.isDone == b.isDone ? 0 : (a.isDone ? 1 : -1));
 
     return sortedTasks.isEmpty
-        ? Center(child: Text('No tasks yet', style: tt.bodyLarge))
+        ? Center(child: Text(AppLocalizations.of(context)!.noTasks, style: tt.bodyLarge))
         : ListView.builder(
       itemCount: sortedTasks.length,
       itemBuilder: (context, index) {
@@ -279,19 +306,33 @@ class _HomeScreenState extends State<HomeScreen> {
               size: 28,
             ),
           ),
-          title: Text(
-            task.title,
-            style: tt.bodyLarge!.copyWith(
-              decoration:
-              task.isDone ? TextDecoration.lineThrough : null,
-              color: task.isDone
-                  ? Colors.white.withOpacity(0.5)
-                  : tt.bodyLarge!.color,
-            ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                task.title,
+                style: tt.bodyLarge!.copyWith(
+                  decoration:
+                      task.isDone ? TextDecoration.lineThrough : null,
+                  color: task.isDone
+                      ? Colors.white.withOpacity(0.5)
+                      : tt.bodyLarge!.color,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (task.deadline != null)
+                Text(
+                  '${AppLocalizations.of(context)!.deadline}: '
+                  '${_formatDate(task.deadline!)}',
+                  style: tt.bodySmall!.copyWith(color: Colors.white70),
+                ),
+            ],
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              LinkedNoteIconButton(noteId: task.noteId),
               IconButton(
                 icon: const Icon(Icons.edit, color: Colors.white70),
                 onPressed: () async {
@@ -323,5 +364,12 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
+  }
+
+  String _formatDate(int timestamp) {
+    final d = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    return '${d.day.toString().padLeft(2, '0')}'
+        '.${d.month.toString().padLeft(2, '0')}'
+        '.${d.year}';
   }
 }

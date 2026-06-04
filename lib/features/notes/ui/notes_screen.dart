@@ -3,6 +3,8 @@ import '../data/notes_repository.dart';
 import '../models/note.dart';
 import 'note_editor_screen.dart';
 import 'widgets/note_card.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../core/theme/app_theme.dart';
 
 class NotesScreen extends StatefulWidget {
   const NotesScreen({super.key});
@@ -43,19 +45,10 @@ class _NotesScreenState extends State<NotesScreen> {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF2E385A),
-            Color(0xFF6C5E82),
-            Color(0xFFA091A7),
-          ],
-        ),
-      ),
+      decoration: AppTheme.pageDecoration(context),
       child: Scaffold(
         backgroundColor: Colors.transparent,
 
@@ -69,7 +62,7 @@ class _NotesScreenState extends State<NotesScreen> {
             : notes.isEmpty
             ? Center(
           child: Text(
-            "No notes yet",
+            l10n.noNotes,
             style: tt.titleLarge!.copyWith(color: Colors.white70),
           ),
         )

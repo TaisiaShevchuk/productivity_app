@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../core/widgets/linked_note_field.dart';
 
 class HabitCard extends StatelessWidget {
   final String title;
   final List<int> days;
+  final int? noteId;
   final void Function(int index) onToggle;
 
   final VoidCallback? onEdit;
@@ -12,6 +15,7 @@ class HabitCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.days,
+    this.noteId,
     required this.onToggle,
     this.onEdit,
     this.onDelete,
@@ -22,7 +26,16 @@ class HabitCard extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
     final cs = Theme.of(context).colorScheme;
 
-    const labels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    final l10n = AppLocalizations.of(context)!;
+    final labels = [
+      l10n.weekdayMonShort,
+      l10n.weekdayTueShort,
+      l10n.weekdayWedShort,
+      l10n.weekdayThuShort,
+      l10n.weekdayFriShort,
+      l10n.weekdaySatShort,
+      l10n.weekdaySunShort,
+    ];
 
     //TODAY
     final todayIndex = (DateTime.now().weekday - 1) % 7;
@@ -49,10 +62,19 @@ class HabitCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: tt.titleMedium),
+              Expanded(
+                child: Text(
+                  title,
+                  style: tt.titleMedium,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
 
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
+                  LinkedNoteIconButton(noteId: noteId),
                   if (onEdit != null)
                     IconButton(
                       icon: const Icon(Icons.edit, size: 20),
@@ -72,7 +94,7 @@ class HabitCard extends StatelessWidget {
           const SizedBox(height: 12),
 
           Text(
-            "Progress: $completed / 7",
+            "${l10n.goalProgress}: $completed / 7",
             style: tt.bodySmall!.copyWith(color: Colors.white70),
           ),
 
