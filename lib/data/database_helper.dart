@@ -27,9 +27,10 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 9,
+      version: 10,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
+      onOpen: _ensureDB,
     );
   }
 
@@ -103,6 +104,26 @@ class DatabaseHelper {
       await _addColumnIfMissing(db, 'habits', 'noteId', 'INTEGER');
       await _addColumnIfMissing(db, 'goals', 'noteId', 'INTEGER');
     }
+
+    if (oldVersion < 10) {
+      await _ensureDB(db);
+    }
+  }
+
+  Future<void> _ensureDB(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS trash (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT NOT NULL,
+        data TEXT NOT NULL,
+        deleted_at INTEGER NOT NULL
+      )
+    ''');
+
+    await _addColumnIfMissing(db, 'tasks', 'deadline', 'INTEGER');
+    await _addColumnIfMissing(db, 'tasks', 'noteId', 'INTEGER');
+    await _addColumnIfMissing(db, 'habits', 'noteId', 'INTEGER');
+    await _addColumnIfMissing(db, 'goals', 'noteId', 'INTEGER');
   }
 
   Future<void> _addColumnIfMissing(
@@ -118,12 +139,15 @@ class DatabaseHelper {
   }
 
   //UNIVERSAL DELETE
-  Future<void> deleteItem(String type, int id, Map<String, dynamic> data) async {
+  Future<void> deleteItem(
+    String type,
+    int id,
+    Map<String, dynamic> data,
+  ) async {
     final db = await database;
 
     await db.transaction((txn) async {
       final cleanData = Map<String, dynamic>.from(data);
-      cleanData.remove('id');
 
       await txn.insert('trash', {
         'type': type,

@@ -52,6 +52,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int selectedIndex = 0;
+  bool _navigationVisible = true;
 
   List<Task> tasks = [];
   List<Note> notes = [];
@@ -143,59 +144,98 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Container(
       decoration: AppTheme.pageDecoration(context),
-      child: Row(
+      child: Stack(
         children: [
-          //NavigationRail
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            margin: EdgeInsets.only(
-              left: 12,
-              right: 12,
-              bottom: 12,
-              top: topPadding + 12,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.18),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.35),
-                width: 1.2,
+          Row(
+            children: [
+              //NavigationRail
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 220),
+                child: _navigationVisible
+                    ? AnimatedContainer(
+                        key: const ValueKey('navigation-rail'),
+                        duration: const Duration(milliseconds: 300),
+                        margin: EdgeInsets.only(
+                          left: 12,
+                          right: 12,
+                          bottom: 12,
+                          top: topPadding + 52,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.18),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.35),
+                            width: 1.2,
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(24),
+                          child: AppNavigationRail(
+                            selectedIndex: selectedIndex,
+                            onSelect: (index) {
+                              if (index == 6) {
+                                setState(() => selectedIndex = index);
+                              } else if (index == 8) {
+                                _showSettingsPopup();
+                              } else {
+                                setState(() => selectedIndex = index);
+                                if (index == 4) _loadNotes();
+                                if (index == 2) _loadHabits();
+                              }
+                            },
+                            habits: habits,
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(key: ValueKey('navigation-hidden')),
               ),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: AppNavigationRail(
-                selectedIndex: selectedIndex,
-                onSelect: (index) {
-                  if (index == 6) {
-                    setState(() => selectedIndex = index);
-                  } else if (index == 8) {
-                    _showSettingsPopup();
-                  } else {
-                    setState(() => selectedIndex = index);
-                    if (index == 4) _loadNotes();
-                    if (index == 2) _loadHabits();
-                  }
-                },
-                habits: habits,
+
+              Expanded(
+                child: Scaffold(
+                  backgroundColor: Colors.transparent,
+                  extendBody: true,
+                  extendBodyBehindAppBar: false,
+
+                  appBar: AppBar(
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    titleSpacing: _navigationVisible ? null : 72,
+                    title: Text(titles[selectedIndex], style: tt.titleLarge),
+                  ),
+
+                  body: _buildBody(),
+                  floatingActionButton: _buildFAB(),
+                ),
               ),
-            ),
+            ],
           ),
-
-          Expanded(
-            child: Scaffold(
-              backgroundColor: Colors.transparent,
-              extendBody: true,
-              extendBodyBehindAppBar: false,
-
-              appBar: AppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                title: Text(titles[selectedIndex], style: tt.titleLarge),
+          Positioned(
+            left: 12,
+            top: topPadding + 8,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(14),
+                onTap: () {
+                  setState(() => _navigationVisible = !_navigationVisible);
+                },
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.35),
+                    ),
+                  ),
+                  child: Icon(
+                    _navigationVisible ? Icons.menu_open : Icons.menu,
+                    color: Colors.white,
+                  ),
+                ),
               ),
-
-              body: _buildBody(),
-              floatingActionButton: _buildFAB(),
             ),
           ),
         ],

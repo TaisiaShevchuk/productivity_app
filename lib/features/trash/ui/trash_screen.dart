@@ -32,6 +32,7 @@ class _TrashScreenState extends State<TrashScreen> {
       return sortDescending ? db.compareTo(da) : da.compareTo(db);
     });
 
+    if (!mounted) return;
     setState(() => items = data);
   }
 
@@ -66,7 +67,9 @@ class _TrashScreenState extends State<TrashScreen> {
         backgroundColor: Colors.transparent,
         actions: [
           IconButton(
-            icon: Icon(sortDescending ? Icons.arrow_downward : Icons.arrow_upward),
+            icon: Icon(
+              sortDescending ? Icons.arrow_downward : Icons.arrow_upward,
+            ),
             onPressed: () {
               setState(() => sortDescending = !sortDescending);
               _loadTrash();
@@ -85,7 +88,6 @@ class _TrashScreenState extends State<TrashScreen> {
         ],
       ),
 
-
       body: Column(
         children: [
           // ---------- FILTERS ----------
@@ -95,131 +97,142 @@ class _TrashScreenState extends State<TrashScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildFilterChip("all", l10n.all),
-                _buildFilterChip("note", l10n.note.characters.first.toUpperCase()),
-                _buildFilterChip("task", l10n.task.characters.first.toUpperCase()),
-                _buildFilterChip("goal", l10n.goal.characters.first.toUpperCase()),
-                _buildFilterChip("habit", l10n.habit.characters.first.toUpperCase()),
+                _buildFilterChip(
+                  "note",
+                  l10n.note.characters.first.toUpperCase(),
+                ),
+                _buildFilterChip(
+                  "task",
+                  l10n.task.characters.first.toUpperCase(),
+                ),
+                _buildFilterChip(
+                  "goal",
+                  l10n.goal.characters.first.toUpperCase(),
+                ),
+                _buildFilterChip(
+                  "habit",
+                  l10n.habit.characters.first.toUpperCase(),
+                ),
               ],
             ),
           ),
-
 
           // ---------- LIST ----------
           Expanded(
             child: filtered.isEmpty
                 ? Center(child: Text(l10n.noItems, style: tt.bodyLarge))
                 : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: filtered.length,
-              itemBuilder: (context, index) {
-                final item = filtered[index];
-                final type = item['type'];
-                final data = jsonDecode(item['data']);
-                final deletedAt = DateTime.fromMillisecondsSinceEpoch(
-                  item['deleted_at'],
-                );
-
-                return AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  transitionBuilder: (child, animation) {
-                    return FadeTransition(
-                      opacity: animation,
-                      child: SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(0, 0.1),
-                          end: Offset.zero,
-                        ).animate(animation),
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: Container(
-                    key: ValueKey(item['id']),
-                    margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 6,
-                          offset: const Offset(0, 3),
-                        )
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(_getIcon(type), size: 28),
-                            const SizedBox(width: 12),
-                            Text(type.toUpperCase(), style: tt.titleMedium),
-                          ],
-                        ),
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) {
+                      final item = filtered[index];
+                      final type = item['type'];
+                      final data = jsonDecode(item['data']);
+                      final deletedAt = DateTime.fromMillisecondsSinceEpoch(
+                        item['deleted_at'],
+                      );
 
-                        const SizedBox(height: 8),
+                      return AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        transitionBuilder: (child, animation) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(0, 0.1),
+                                end: Offset.zero,
+                              ).animate(animation),
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: Container(
+                          key: ValueKey(item['id']),
+                          margin: const EdgeInsets.only(bottom: 16),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardColor,
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 6,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(_getIcon(type), size: 28),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    type.toUpperCase(),
+                                    style: tt.titleMedium,
+                                  ),
+                                ],
+                              ),
 
-                        Text(
-                          data['title'] ?? data['content'] ?? l10n.noText,
-                          style: tt.bodyLarge,
-                        ),
+                              const SizedBox(height: 8),
 
-                        const SizedBox(height: 6),
+                              Text(
+                                data['title'] ?? data['content'] ?? l10n.noText,
+                                style: tt.bodyLarge,
+                              ),
 
-                        Text(
-                          "${l10n.deleted}: ${deletedAt.day.toString().padLeft(2, '0')}"
-                              ".${deletedAt.month.toString().padLeft(2, '0')}"
-                              ".${deletedAt.year}",
-                          style: tt.bodySmall!.copyWith(
-                            color: Colors.white70,
+                              const SizedBox(height: 6),
+
+                              Text(
+                                "${l10n.deleted}: ${deletedAt.day.toString().padLeft(2, '0')}"
+                                ".${deletedAt.month.toString().padLeft(2, '0')}"
+                                ".${deletedAt.year}",
+                                style: tt.bodySmall!.copyWith(
+                                  color: Colors.white70,
+                                ),
+                              ),
+
+                              const SizedBox(height: 12),
+
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  TextButton(
+                                    onPressed: () async {
+                                      await DatabaseHelper.instance
+                                          .restoreFromTrash(item);
+
+                                      _removeLocalItem(item['id'] as int);
+                                    },
+                                    child: Text(l10n.restore),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  TextButton(
+                                    onPressed: () async {
+                                      final confirm = await showConfirmDelete(
+                                        context,
+                                      );
+                                      if (!confirm) return;
+
+                                      await DatabaseHelper.instance
+                                          .deleteFromTrash(item['id'] as int);
+
+                                      _removeLocalItem(item['id'] as int);
+                                    },
+                                    child: Text(
+                                      l10n.deleteForever,
+                                      style: const TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-
-                        const SizedBox(height: 12),
-
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            TextButton(
-                              onPressed: () async {
-                                await DatabaseHelper.instance
-                                    .restoreFromTrash(item);
-
-                                setState(() {
-                                  items.removeAt(index);
-                                });
-                              },
-                              child: Text(l10n.restore),
-                            ),
-                            const SizedBox(width: 12),
-                            TextButton(
-                              onPressed: () async {
-                                final confirm =
-                                await showConfirmDelete(context);
-                                if (!confirm) return;
-
-                                await DatabaseHelper.instance
-                                    .deleteFromTrash(item['id']);
-
-                                setState(() {
-                                  items.removeAt(index);
-                                });
-                              },
-                              child: Text(
-                                l10n.deleteForever,
-                                style: const TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),
@@ -238,5 +251,11 @@ class _TrashScreenState extends State<TrashScreen> {
         setState(() => filter = value);
       },
     );
+  }
+
+  void _removeLocalItem(int id) {
+    setState(() {
+      items.removeWhere((item) => item['id'] == id);
+    });
   }
 }
