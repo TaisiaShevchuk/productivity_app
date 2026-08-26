@@ -268,7 +268,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     if (selectedIndex == 6) return const AssistantScreen();
     if (selectedIndex == 7) return StatisticsScreen(habits: habits);
-    if (selectedIndex == 9) return const TrashScreen();
+    if (selectedIndex == 9) {
+      return TrashScreen(onChanged: _refreshHomeData);
+    }
 
     return Center(
       child: Text(

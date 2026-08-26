@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../data/database_helper.dart';
 import '../widgets/progress_circle.dart';
 import '../models/goal.dart';
-import '../../trash/ui/confirm_delete.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/widgets/linked_note_field.dart';
 
@@ -41,79 +39,74 @@ class GoalCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         children: [
-          //PROGRESS
-          ProgressCircle(progress: goal.progress, size: 52),
+          InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: onTap,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                //PROGRESS
+                ProgressCircle(progress: goal.progress, size: 52),
 
-          const SizedBox(width: 16),
+                const SizedBox(width: 12),
 
-          //TEXT
-          Expanded(
-            child: InkWell(
-              borderRadius: BorderRadius.circular(14),
-              onTap: onTap,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(goal.title, style: tt.titleMedium),
+                //TEXT
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        goal.title,
+                        style: tt.titleMedium,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
 
-                  const SizedBox(height: 4),
+                      const SizedBox(height: 4),
 
-                  if (goal.deadline != null)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      if (goal.deadline != null)
                         Text(
-                          _formatDeadlineDate(goal.deadline!),
+                          '${_formatDeadlineDate(goal.deadline!)}  '
+                          '${_formatDeadlineTime(goal.deadline!)}',
                           maxLines: 1,
-                          softWrap: false,
+                          overflow: TextOverflow.ellipsis,
                           style: tt.bodySmall,
                         ),
+
+                      if (totalCount > 0)
                         Text(
-                          _formatDeadlineTime(goal.deadline!),
-                          maxLines: 1,
-                          softWrap: false,
+                          "$doneCount ${l10n.outOf} $totalCount",
                           style: tt.bodySmall,
                         ),
-                      ],
-                    ),
-
-                  if (totalCount > 0)
-                    Text(
-                      "$doneCount ${l10n.outOf} $totalCount",
-                      style: tt.bodySmall,
-                    ),
-                ],
-              ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
 
+          const SizedBox(height: 4),
+
           //ACTION BUTTONS
-          Row(
-            children: [
-              LinkedNoteIconButton(noteId: goal.noteId),
-              IconButton(
-                icon: Icon(Icons.edit, color: iconColor),
-                onPressed: onTap,
-                tooltip: l10n.edit,
-              ),
-              IconButton(
-                icon: Icon(Icons.delete, color: iconColor),
-                onPressed: () async {
-                  final confirm = await showConfirmDelete(context);
-                  if (!confirm) return;
-
-                  await DatabaseHelper.instance.deleteItem(
-                    "goal",
-                    goal.id!,
-                    goal.toMap(),
-                  );
-
-                  onDelete();
-                },
-              ),
-            ],
+          Align(
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                LinkedNoteIconButton(noteId: goal.noteId),
+                IconButton(
+                  icon: Icon(Icons.edit, color: iconColor),
+                  onPressed: onTap,
+                  tooltip: l10n.edit,
+                ),
+                IconButton(
+                  icon: Icon(Icons.delete, color: iconColor),
+                  onPressed: onDelete,
+                ),
+              ],
+            ),
           ),
         ],
       ),

@@ -7,6 +7,7 @@ class HabitCard extends StatelessWidget {
   final List<int> days;
   final int? noteId;
   final void Function(int index) onToggle;
+  final Widget? dragHandle;
 
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
@@ -17,6 +18,7 @@ class HabitCard extends StatelessWidget {
     required this.days,
     this.noteId,
     required this.onToggle,
+    this.dragHandle,
     this.onEdit,
     this.onDelete,
   });
@@ -39,9 +41,13 @@ class HabitCard extends StatelessWidget {
 
     //TODAY
     final todayIndex = (DateTime.now().weekday - 1) % 7;
+    final safeDays = List<int>.generate(
+      7,
+      (index) => index < days.length ? days[index] : 0,
+    );
 
     //Execution statistics
-    final completed = days.where((d) => d == 1).length;
+    final completed = safeDays.where((d) => d == 1).length;
     final percent = completed / 7;
 
     return Container(
@@ -50,15 +56,11 @@ class HabitCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.25),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.25), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -86,6 +88,7 @@ class HabitCard extends StatelessWidget {
                       icon: const Icon(Icons.delete, size: 20),
                       onPressed: onDelete,
                     ),
+                  ?dragHandle,
                 ],
               ),
             ],
@@ -112,46 +115,54 @@ class HabitCard extends StatelessWidget {
 
           //Days of the week
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: List.generate(7, (i) {
-              final done = days[i] == 1;
+              final done = safeDays[i] == 1;
               final isToday = i == todayIndex;
 
-              return GestureDetector(
-                onTap: () => onToggle(i),
-                child: Column(
-                  children: [
-                    Text(
-                      labels[i],
-                      style: tt.bodySmall!.copyWith(
-                        color: isToday ? Colors.blueAccent : Colors.white,
-                        fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeOut,
-                      width: done ? 32 : 28,
-                      height: done ? 32 : 28,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: done ? Colors.green : Colors.transparent,
-                        border: Border.all(
-                          color: done
-                              ? Colors.green
-                              : isToday
-                              ? Colors.blueAccent
-                              : cs.secondary,
-                          width: isToday ? 3 : 2,
+              return Expanded(
+                child: InkWell(
+                  onTap: () => onToggle(i),
+                  borderRadius: BorderRadius.circular(18),
+                  child: Column(
+                    children: [
+                      Text(
+                        labels[i],
+                        style: tt.bodySmall!.copyWith(
+                          color: isToday ? Colors.blueAccent : Colors.white,
+                          fontWeight: isToday
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                         ),
                       ),
-                      child: done
-                          ? const Icon(Icons.check, size: 18, color: Colors.white)
-                          : null,
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeOut,
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: done ? Colors.green : Colors.transparent,
+                          border: Border.all(
+                            color: done
+                                ? Colors.green
+                                : isToday
+                                ? Colors.blueAccent
+                                : cs.secondary,
+                            width: isToday ? 3 : 2,
+                          ),
+                        ),
+                        child: done
+                            ? const Icon(
+                                Icons.check,
+                                size: 18,
+                                color: Colors.white,
+                              )
+                            : null,
+                      ),
+                    ],
+                  ),
                 ),
               );
             }),

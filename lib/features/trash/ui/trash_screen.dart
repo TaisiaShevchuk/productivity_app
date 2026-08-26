@@ -5,7 +5,9 @@ import 'confirm_delete.dart';
 import '../../../l10n/app_localizations.dart';
 
 class TrashScreen extends StatefulWidget {
-  const TrashScreen({super.key});
+  final Future<void> Function()? onChanged;
+
+  const TrashScreen({super.key, this.onChanged});
 
   @override
   State<TrashScreen> createState() => _TrashScreenState();
@@ -15,6 +17,8 @@ class _TrashScreenState extends State<TrashScreen> {
   List<Map<String, dynamic>> items = [];
   String filter = "all";
   bool sortDescending = true;
+  final Set<int> _busyItems = {};
+  bool _clearing = false;
 
   @override
   void initState() {
@@ -27,8 +31,8 @@ class _TrashScreenState extends State<TrashScreen> {
 
     //sort by deletion date
     data.sort((a, b) {
-      final da = a['deleted_at'];
-      final db = b['deleted_at'];
+      final da = (a['deleted_at'] as num?)?.toInt() ?? 0;
+      final db = (b['deleted_at'] as num?)?.toInt() ?? 0;
       return sortDescending ? db.compareTo(da) : da.compareTo(db);
     });
 
@@ -77,12 +81,21 @@ class _TrashScreenState extends State<TrashScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.delete_sweep),
-            onPressed: () async {
+            onPressed: _clearing || _busyItems.isNotEmpty || items.isEmpty
+                ? null
+                : () async {
               final confirm = await showConfirmDelete(context);
               if (!confirm) return;
 
-              await DatabaseHelper.instance.clearTrash();
-              _loadTrash();
+              setState(() => _clearing = true);
+              try {
+                await DatabaseHelper.instance.clearTrash();
+                await _loadTrash();
+              } catch (error) {
+                _showOperationError(error);
+              } finally {
+                if (mounted) setState(() => _clearing = false);
+              }
             },
           ),
         ],
@@ -93,27 +106,33 @@ class _TrashScreenState extends State<TrashScreen> {
           // ---------- FILTERS ----------
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildFilterChip("all", l10n.all),
-                _buildFilterChip(
-                  "note",
-                  l10n.note.characters.first.toUpperCase(),
-                ),
-                _buildFilterChip(
-                  "task",
-                  l10n.task.characters.first.toUpperCase(),
-                ),
-                _buildFilterChip(
-                  "goal",
-                  l10n.goal.characters.first.toUpperCase(),
-                ),
-                _buildFilterChip(
-                  "habit",
-                  l10n.habit.characters.first.toUpperCase(),
-                ),
-              ],
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildFilterChip("all", l10n.all),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(
+                    "note",
+                    l10n.note.characters.first.toUpperCase(),
+                  ),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(
+                    "task",
+                    l10n.task.characters.first.toUpperCase(),
+                  ),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(
+                    "goal",
+                    l10n.goal.characters.first.toUpperCase(),
+                  ),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(
+                    "habit",
+                    l10n.habit.characters.first.toUpperCase(),
+                  ),
+                ],
+              ),
             ),
           ),
 
@@ -126,10 +145,12 @@ class _TrashScreenState extends State<TrashScreen> {
                     itemCount: filtered.length,
                     itemBuilder: (context, index) {
                       final item = filtered[index];
-                      final type = item['type'];
-                      final data = jsonDecode(item['data']);
+                      final itemId = item['id'] as int;
+                      final isBusy = _clearing || _busyItems.contains(itemId);
+                      final type = item['type']?.toString() ?? 'unknown';
+                      final data = _decodeItemData(item['data']);
                       final deletedAt = DateTime.fromMillisecondsSinceEpoch(
-                        item['deleted_at'],
+                        (item['deleted_at'] as num?)?.toInt() ?? 0,
                       );
 
                       return AnimatedSwitcher(
@@ -155,7 +176,7 @@ class _TrashScreenState extends State<TrashScreen> {
                             borderRadius: BorderRadius.circular(14),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
+                                color: Colors.black.withValues(alpha: 0.05),
                                 blurRadius: 6,
                                 offset: const Offset(0, 3),
                               ),
@@ -178,7 +199,10 @@ class _TrashScreenState extends State<TrashScreen> {
                               const SizedBox(height: 8),
 
                               Text(
-                                data['title'] ?? data['content'] ?? l10n.noText,
+                                (data['title'] ??
+                                        data['content'] ??
+                                        l10n.noText)
+                                    .toString(),
                                 style: tt.bodyLarge,
                               ),
 
@@ -199,26 +223,27 @@ class _TrashScreenState extends State<TrashScreen> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   TextButton(
-                                    onPressed: () async {
-                                      await DatabaseHelper.instance
-                                          .restoreFromTrash(item);
-
-                                      _removeLocalItem(item['id'] as int);
-                                    },
-                                    child: Text(l10n.restore),
+                                    onPressed: isBusy
+                                        ? null
+                                        : () => _restoreItem(itemId),
+                                    child: isBusy
+                                        ? const SizedBox.square(
+                                            dimension: 18,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : Text(l10n.restore),
                                   ),
                                   const SizedBox(width: 12),
                                   TextButton(
-                                    onPressed: () async {
+                                    onPressed: isBusy ? null : () async {
                                       final confirm = await showConfirmDelete(
                                         context,
                                       );
                                       if (!confirm) return;
 
-                                      await DatabaseHelper.instance
-                                          .deleteFromTrash(item['id'] as int);
-
-                                      _removeLocalItem(item['id'] as int);
+                                      await _deletePermanently(itemId);
                                     },
                                     child: Text(
                                       l10n.deleteForever,
@@ -254,8 +279,54 @@ class _TrashScreenState extends State<TrashScreen> {
   }
 
   void _removeLocalItem(int id) {
+    if (!mounted) return;
     setState(() {
       items.removeWhere((item) => item['id'] == id);
     });
+  }
+
+  Future<void> _restoreItem(int id) async {
+    setState(() => _busyItems.add(id));
+    try {
+      await DatabaseHelper.instance.restoreFromTrash(id);
+      _removeLocalItem(id);
+      await widget.onChanged?.call();
+    } catch (error) {
+      await _loadTrash();
+      _showOperationError(error);
+    } finally {
+      if (mounted) setState(() => _busyItems.remove(id));
+    }
+  }
+
+  Future<void> _deletePermanently(int id) async {
+    setState(() => _busyItems.add(id));
+    try {
+      await DatabaseHelper.instance.deleteFromTrash(id);
+      _removeLocalItem(id);
+    } catch (error) {
+      await _loadTrash();
+      _showOperationError(error);
+    } finally {
+      if (mounted) setState(() => _busyItems.remove(id));
+    }
+  }
+
+  void _showOperationError(Object error) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Trash operation failed: $error')),
+    );
+  }
+
+  Map<String, dynamic> _decodeItemData(Object? raw) {
+    try {
+      final decoded = jsonDecode(raw?.toString() ?? '');
+      return decoded is Map
+          ? Map<String, dynamic>.from(decoded)
+          : <String, dynamic>{};
+    } catch (_) {
+      return <String, dynamic>{};
+    }
   }
 }

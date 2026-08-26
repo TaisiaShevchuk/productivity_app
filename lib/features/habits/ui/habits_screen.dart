@@ -41,11 +41,7 @@ class _HabitsScreenState extends State<HabitsScreen> {
     final confirm = await showConfirmDelete(context);
     if (!confirm) return;
 
-    await DatabaseHelper.instance.deleteItem(
-      "habit",
-      habit.id!,
-      habit.toMap(),
-    );
+    await DatabaseHelper.instance.deleteItem("habit", habit.id!, habit.toMap());
 
     _loadHabits();
   }
@@ -64,58 +60,66 @@ class _HabitsScreenState extends State<HabitsScreen> {
       ),
 
       body: habits.isEmpty
-          ? Center(
-        child: Text(
-          l10n.noHabits,
-          style: tt.bodyLarge,
-        ),
-      )
+          ? Center(child: Text(l10n.noHabits, style: tt.bodyLarge))
           : ReorderableListView(
-        padding: const EdgeInsets.only(bottom: 80),
-        onReorder: (oldIndex, newIndex) async {
-          if (newIndex > oldIndex) newIndex--;
+              buildDefaultDragHandles: false,
+              padding: const EdgeInsets.only(bottom: 80),
+              onReorder: (oldIndex, newIndex) async {
+                if (newIndex > oldIndex) newIndex--;
 
-          final item = habits.removeAt(oldIndex);
-          habits.insert(newIndex, item);
+                final item = habits.removeAt(oldIndex);
+                habits.insert(newIndex, item);
 
-          setState(() {});
-        },
-        children: [
-          for (final habit in habits)
-            HabitCard(
-              key: ValueKey(habit.id),
-              title: habit.title,
-              days: habit.days,
-              noteId: habit.noteId,
-              onToggle: (dayIndex) async {
-                final updatedDays = [...habit.days];
-                updatedDays[dayIndex] =
-                updatedDays[dayIndex] == 1 ? 0 : 1;
-
-                await DatabaseHelper.instance.updateHabit(
-                  Habit(
-                    id: habit.id,
+                setState(() {});
+              },
+              children: [
+                for (final habit in habits)
+                  HabitCard(
+                    key: ValueKey(habit.id),
                     title: habit.title,
-                    days: updatedDays,
-                    lastReset: habit.lastReset,
+                    days: habit.days,
                     noteId: habit.noteId,
-                  ),
-                );
+                    dragHandle: ReorderableDragStartListener(
+                      index: habits.indexOf(habit),
+                      child: const Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Icon(Icons.drag_handle, size: 20),
+                      ),
+                    ),
+                    onToggle: (dayIndex) async {
+                      final updatedDays = List<int>.generate(
+                        7,
+                        (index) =>
+                            index < habit.days.length ? habit.days[index] : 0,
+                      );
+                      updatedDays[dayIndex] = updatedDays[dayIndex] == 1
+                          ? 0
+                          : 1;
 
-                _loadHabits();
-              },
-              onEdit: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => EditHabitScreen(habit: habit),
+                      await DatabaseHelper.instance.updateHabit(
+                        Habit(
+                          id: habit.id,
+                          title: habit.title,
+                          days: updatedDays,
+                          lastReset: habit.lastReset,
+                          noteId: habit.noteId,
+                        ),
+                      );
+
+                      _loadHabits();
+                    },
+                    onEdit: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => EditHabitScreen(habit: habit),
+                        ),
+                      ).then((_) => _loadHabits());
+                    },
+                    onDelete: () => _deleteHabit(habit),
                   ),
-                ).then((_) => _loadHabits());
-              },
-              onDelete: () => _deleteHabit(habit),
+              ],
             ),
-        ],
-      ),
     );
   }
 }

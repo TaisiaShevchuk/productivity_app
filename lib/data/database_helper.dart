@@ -142,12 +142,42 @@ class DatabaseHelper {
   Future<void> deleteItem(
     String type,
     int id,
-    Map<String, dynamic> data,
+    Map<String, dynamic> _,
   ) async {
     final db = await database;
+    final table = _tableForTrashType(type);
 
     await db.transaction((txn) async {
-      final cleanData = Map<String, dynamic>.from(data);
+      final rows = await txn.query(
+        table,
+        where: 'id = ?',
+        whereArgs: [id],
+        limit: 1,
+      );
+
+      // A second tap must not create another trash entry for an item that
+      // has already been deleted.
+      if (rows.isEmpty) return;
+
+      final cleanData = Map<String, dynamic>.from(rows.first);
+
+      if (type == 'note') {
+        cleanData['_linkedTaskIds'] = await _linkedIds(
+          txn,
+          'tasks',
+          id,
+        );
+        cleanData['_linkedGoalIds'] = await _linkedIds(
+          txn,
+          'goals',
+          id,
+        );
+        cleanData['_linkedHabitIds'] = await _linkedIds(
+          txn,
+          'habits',
+          id,
+        );
+      }
 
       await txn.insert('trash', {
         'type': type,
@@ -155,42 +185,37 @@ class DatabaseHelper {
         'deleted_at': DateTime.now().millisecondsSinceEpoch,
       });
 
-      switch (type) {
-        case "note":
-          await txn.update(
-            'tasks',
-            {'noteId': null},
-            where: 'noteId = ?',
-            whereArgs: [id],
-          );
-          await txn.update(
-            'goals',
-            {'noteId': null},
-            where: 'noteId = ?',
-            whereArgs: [id],
-          );
-          await txn.update(
-            'habits',
-            {'noteId': null},
-            where: 'noteId = ?',
-            whereArgs: [id],
-          );
-          await txn.delete('notes', where: 'id = ?', whereArgs: [id]);
-          break;
-        case "task":
-          await txn.delete('tasks', where: 'id = ?', whereArgs: [id]);
-          break;
-        case "habit":
-          await txn.delete('habits', where: 'id = ?', whereArgs: [id]);
-          break;
-        case "goal":
-          await txn.delete('goals', where: 'id = ?', whereArgs: [id]);
-          break;
+      if (type == 'note') {
+        await txn.update(
+          'tasks',
+          {'noteId': null},
+          where: 'noteId = ?',
+          whereArgs: [id],
+        );
+        await txn.update(
+          'goals',
+          {'noteId': null},
+          where: 'noteId = ?',
+          whereArgs: [id],
+        );
+        await txn.update(
+          'habits',
+          {'noteId': null},
+          where: 'noteId = ?',
+          whereArgs: [id],
+        );
       }
+
+      await txn.delete(table, where: 'id = ?', whereArgs: [id]);
     });
 
-    if (type == 'task') await NotificationService.instance.cancelTask(id);
-    if (type == 'goal') await NotificationService.instance.cancelGoal(id);
+    try {
+      if (type == 'task') await NotificationService.instance.cancelTask(id);
+      if (type == 'goal') await NotificationService.instance.cancelGoal(id);
+    } catch (_) {
+      // The database deletion has succeeded already. A platform notification
+      // failure must not make the trash operation appear to have failed.
+    }
   }
 
   //TRASH
@@ -209,29 +234,143 @@ class DatabaseHelper {
     await db.delete('trash');
   }
 
-  Future<void> restoreFromTrash(Map<String, dynamic> item) async {
-    final type = item['type'];
-    final data = jsonDecode(item['data']);
+  Future<void> restoreFromTrash(int trashId) async {
+    final db = await database;
 
-    switch (type) {
-      case "note":
-        await insertNote(Note.fromMap(data));
-        break;
+    final restored = await db.transaction<Map<String, dynamic>>((txn) async {
+      final rows = await txn.query(
+        'trash',
+        where: 'id = ?',
+        whereArgs: [trashId],
+        limit: 1,
+      );
 
-      case "task":
-        await insertTask(Task.fromMap(data));
-        break;
+      if (rows.isEmpty) {
+        throw StateError('The trash item no longer exists.');
+      }
 
-      case "habit":
-        await insertHabit(Habit.fromMap(data));
-        break;
+      final trashItem = rows.first;
+      final type = trashItem['type'] as String;
+      final table = _tableForTrashType(type);
+      final decoded = jsonDecode(trashItem['data'] as String);
 
-      case "goal":
-        await insertGoal(Goal.fromMap(data));
-        break;
+      if (decoded is! Map) {
+        throw const FormatException('Invalid trash item data.');
+      }
+
+      final storedData = Map<String, dynamic>.from(decoded);
+      var record = Map<String, dynamic>.from(storedData)
+        ..removeWhere((key, _) => key.startsWith('_'));
+      final originalId = record['id'] as int?;
+
+      // Older duplicate trash entries can refer to an object that has
+      // already been restored. Treat that operation as completed instead of
+      // inserting a duplicate or throwing a primary-key error.
+      final existing = originalId == null
+          ? <Map<String, Object?>>[]
+          : await txn.query(
+              table,
+              where: 'id = ?',
+              whereArgs: [originalId],
+              limit: 1,
+            );
+
+      if (existing.isEmpty) {
+        final restoredId = await txn.insert(table, record);
+        record['id'] = originalId ?? restoredId;
+      } else if (_sameRecord(record, existing.first)) {
+        // This is a duplicate legacy trash entry for an item that has
+        // already been restored.
+        record = Map<String, dynamic>.from(existing.first);
+      } else {
+        // Preserve both objects if an unrelated row now uses the old ID.
+        record.remove('id');
+        record['id'] = await txn.insert(table, record);
+      }
+
+      if (type == 'note' && record['id'] != null) {
+        await _restoreNoteLinks(txn, record['id'] as int, storedData);
+      }
+
+      await txn.delete('trash', where: 'id = ?', whereArgs: [trashId]);
+
+      return {'type': type, 'data': record};
+    });
+
+    // Notification scheduling is intentionally performed after the database
+    // transaction so notification plugins never leave it half-completed.
+    final type = restored['type'] as String;
+    final data = restored['data'] as Map<String, dynamic>;
+    try {
+      if (type == 'task') {
+        await NotificationService.instance.scheduleTask(Task.fromMap(data));
+      } else if (type == 'goal') {
+        await NotificationService.instance.scheduleGoal(Goal.fromMap(data));
+      }
+    } catch (_) {
+      // Restored data remains valid even when notifications are unavailable.
     }
+  }
 
-    await deleteFromTrash(item['id']);
+  String _tableForTrashType(String type) {
+    switch (type) {
+      case 'note':
+        return 'notes';
+      case 'task':
+        return 'tasks';
+      case 'habit':
+        return 'habits';
+      case 'goal':
+        return 'goals';
+      default:
+        throw ArgumentError.value(type, 'type', 'Unsupported trash item type');
+    }
+  }
+
+  bool _sameRecord(
+    Map<String, dynamic> stored,
+    Map<String, Object?> existing,
+  ) {
+    return stored.entries.every((entry) => existing[entry.key] == entry.value);
+  }
+
+  Future<List<int>> _linkedIds(
+    Transaction txn,
+    String table,
+    int noteId,
+  ) async {
+    final rows = await txn.query(
+      table,
+      columns: ['id'],
+      where: 'noteId = ?',
+      whereArgs: [noteId],
+    );
+    return rows.map((row) => row['id'] as int).toList();
+  }
+
+  Future<void> _restoreNoteLinks(
+    Transaction txn,
+    int noteId,
+    Map<String, dynamic> storedData,
+  ) async {
+    final links = <String, String>{
+      '_linkedTaskIds': 'tasks',
+      '_linkedGoalIds': 'goals',
+      '_linkedHabitIds': 'habits',
+    };
+
+    for (final entry in links.entries) {
+      final ids = (storedData[entry.key] as List?)?.whereType<int>() ??
+          const Iterable<int>.empty();
+      for (final id in ids) {
+        await txn.update(
+          entry.value,
+          {'noteId': noteId},
+          where: 'id = ? AND noteId IS NULL',
+          whereArgs: [id],
+        );
+      }
+    }
   }
 
   //NOTES
